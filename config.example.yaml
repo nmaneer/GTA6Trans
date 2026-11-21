@@ -34,6 +34,16 @@ overlay:
   margin_px: 80
   hide_after_seconds: 6  # ซ่อนซับเมื่อไม่มีบทพูดใหม่
 
+# ที่แสดงซับไทย
+#   overlay : หน้าต่างซับลอยทับจอ PC
+#   console : พิมพ์ใน terminal (ไว้ทดสอบ)
+#   lgtv    : ส่งเป็นป๊อปอัปขึ้นทีวี LG ผ่าน Wi-Fi (ขึ้นทับเกมจากช่อง HDMI ได้)
+output: overlay
+
+lgtv:
+  host: ""               # IP ทีวี เช่น 192.168.1.50 (Settings → Network → ขั้นสูง)
+  show_english: false    # แสดงภาษาอังกฤษในวงเล็บด้วย
+
 # โหมดเสียง (ทางเลือก) — ฟังเสียงจาก PC แล้วถอดความด้วย Whisper
 # ใช้กับบทพูดที่ไม่มีซับขึ้นจอ (ต้องติดตั้ง faster-whisper และ soundcard เพิ่ม)
 audio:

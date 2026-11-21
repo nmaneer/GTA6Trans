@@ -7,3 +7,5 @@ PyYAML>=6.0
 # --- Optional: audio mode (dialogue that has no on-screen subtitles) ---
 # faster-whisper>=1.0
 # soundcard>=0.4
+# --- Optional: show subtitles on an LG webOS TV (output: lgtv). Needs Python 3.12+ ---
+# aiowebostv>=1.1

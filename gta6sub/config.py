@@ -29,6 +29,8 @@ DEFAULTS: dict = {
         "margin_px": 80,
         "hide_after_seconds": 6,
     },
+    "output": "overlay",
+    "lgtv": {"host": "", "show_english": False},
     "audio": {
         "enabled": False,
         "whisper_model": "small.en",

@@ -61,6 +61,8 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Realtime Thai subtitles for GTA 6 on PS5")
     ap.add_argument("-c", "--config", default="config.yaml")
     ap.add_argument("--no-overlay", action="store_true", help="print subtitles to console only")
+    ap.add_argument("--output", choices=["overlay", "console", "lgtv"],
+                    help="where to show subtitles (default: from config)")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
@@ -83,8 +85,20 @@ def main() -> None:
     for th in threads:
         th.start()
 
+    output = "console" if args.no_overlay else (args.output or cfg["output"])
     try:
-        if args.no_overlay:
+        if output == "lgtv":
+            from .lgtv import LGToastSender
+
+            lg = cfg["lgtv"]
+            if not lg["host"]:
+                raise SystemExit("ใส่ lgtv.host (IP ทีวี) ใน config.yaml ก่อน")
+            tv = LGToastSender(lg["host"])
+            log.info("Sending subtitles to LG TV %s", lg["host"])
+            while True:
+                en, th = out.get()
+                tv.send(f"{th}\n({en})" if lg["show_english"] else th)
+        elif output == "console":
             while True:
                 en, th = out.get()
                 print(f"\n  {en}\n  >> {th}")
