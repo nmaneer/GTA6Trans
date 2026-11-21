@@ -1,0 +1,43 @@
+# คัดลอกไฟล์นี้เป็น config.yaml แล้วแก้ค่า
+# ---------------------------------------------------------------
+# แหล่งภาพ (source)
+#   screen : จับภาพจากหน้าจอ PC (เช่น หน้าต่าง PS Remote Play / OBS / โปรแกรมของ capture card)
+#   device : อ่านจาก capture card หรือ OBS Virtual Camera โดยตรง
+source: screen
+device_index: 0          # ใช้เมื่อ source: device (0, 1, 2 ... ลองเปลี่ยนถ้าไม่เจอ)
+monitor: 1               # ใช้เมื่อ source: screen (1 = จอหลัก)
+
+# พื้นที่ซับภาษาอังกฤษในเกม (สัดส่วน 0..1 ของภาพ) — รัน `python calibrate.py` เพื่อเลือกอัตโนมัติ
+subtitle_region:
+  left: 0.15
+  top: 0.80
+  width: 0.70
+  height: 0.15
+
+fps: 4                   # จำนวนครั้งที่อ่าน OCR ต่อวินาที (3-6 กำลังดี)
+min_confidence: 0.6      # ความมั่นใจขั้นต่ำของ OCR
+stable_frames: 2         # ข้อความต้องเหมือนเดิมกี่เฟรมก่อนส่งแปล (กันอ่านตอนตัวหนังสือกำลังขึ้น)
+
+translator:
+  model: claude-opus-5-5 # ถ้าอยากเร็ว/ถูกลงมาก ใช้ claude-haiku-5-5
+  effort: low            # low = เร็วสุด เหมาะกับ realtime
+  context_lines: 6       # ส่งบทพูดก่อนหน้าไปด้วยกี่บรรทัด ช่วยให้แปลต่อเนื่อง
+  timeout_seconds: 15
+
+overlay:
+  font_family: "Tahoma"  # ฟอนต์ที่มีภาษาไทย เช่น Tahoma, Leelawadee UI, Noto Sans Thai
+  font_size: 30
+  text_color: "#FFFFFF"
+  outline_color: "#000000"
+  show_english: false    # แสดงภาษาอังกฤษตัวเล็กไว้ด้านบนด้วย
+  position: bottom       # bottom | top
+  margin_px: 80
+  hide_after_seconds: 6  # ซ่อนซับเมื่อไม่มีบทพูดใหม่
+
+# โหมดเสียง (ทางเลือก) — ฟังเสียงจาก PC แล้วถอดความด้วย Whisper
+# ใช้กับบทพูดที่ไม่มีซับขึ้นจอ (ต้องติดตั้ง faster-whisper และ soundcard เพิ่ม)
+audio:
+  enabled: false
+  whisper_model: small.en  # tiny.en / base.en / small.en / medium.en
+  device: cpu              # cpu หรือ cuda (ถ้ามีการ์ดจอ NVIDIA)
+  chunk_seconds: 4
