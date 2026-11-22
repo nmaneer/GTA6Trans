@@ -1,0 +1,477 @@
+<title>คู่มือ Leonida</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: phone-first app shell — sticky tab bar, one column of panels, widens to two columns on desktop. */
+:root {
+  --bg: #f3f6f5;
+  --surface: #ffffff;
+  --ink: #12211f;
+  --muted: #5a6b68;
+  --line: #d6e0de;
+  --accent: #e2574c;       /* Leonida sunset */
+  --accent-ink: #ffffff;
+  --sea: #0f7c78;          /* Keys water */
+  --sea-soft: #dff1ef;
+  --warn: #b26a00;
+  --warn-soft: #fff1d9;
+  --font-display: "Kanit", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans Thai", "Leelawadee UI", Tahoma, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1615; --surface: #13211f; --ink: #e7f0ee; --muted: #93a7a3; --line: #243835;
+    --accent: #ff7a6b; --accent-ink: #1a0b09; --sea: #4fd1c5; --sea-soft: #123230;
+    --warn: #ffb44d; --warn-soft: #33260f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1615; --surface: #13211f; --ink: #e7f0ee; --muted: #93a7a3; --line: #243835;
+  --accent: #ff7a6b; --accent-ink: #1a0b09; --sea: #4fd1c5; --sea-soft: #123230;
+  --warn: #ffb44d; --warn-soft: #33260f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 15px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 960px; margin: 0 auto; }
+header.top { padding-block: 20px 8px; display: flex; flex-direction: column; gap: 4px; }
+.brand { font: 700 28px/1.1 var(--font-display); letter-spacing: .01em; text-wrap: balance; margin: 0; }
+.brand span { color: var(--accent); }
+.sub { color: var(--muted); font-size: 13px; margin: 0; }
+nav.tabs {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  display: flex; gap: 6px; padding-block: 10px; overflow-x: auto; scrollbar-width: none;
+  border-bottom: 1px solid var(--line);
+}
+nav.tabs button {
+  flex: 0 0 auto; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  font: 500 14px var(--font-body); padding: 8px 14px; border-radius: 999px; cursor: pointer;
+}
+nav.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
+section.panel { padding-block: 18px; display: flex; flex-direction: column; gap: 16px; }
+h2 { font: 700 20px/1.25 var(--font-display); margin: 0; text-wrap: balance; }
+h3 { font: 600 16px/1.3 var(--font-body); margin: 0; }
+.lede { color: var(--muted); margin: 0; max-width: 65ch; }
+.label { font: 500 11px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* Ask */
+.chat { display: flex; flex-direction: column; gap: 12px; min-height: 120px; }
+.msg { max-width: 92%; padding: 10px 14px; border-radius: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg.me { align-self: flex-end; background: var(--ink); color: var(--bg); border-bottom-right-radius: 4px; }
+.msg.ai { align-self: flex-start; background: var(--surface); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+.msg.ai.err { border-color: var(--warn); background: var(--warn-soft); }
+.msg img { display: block; max-height: 140px; border-radius: 8px; margin-bottom: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px dashed var(--line); background: transparent; color: var(--ink); font: 14px var(--font-body); padding: 6px 12px; border-radius: 999px; cursor: pointer; text-align: left; }
+.chip:hover { border-color: var(--sea); color: var(--sea); }
+form.ask { display: flex; flex-direction: column; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 10px; }
+form.ask textarea { width: 100%; border: 0; background: transparent; color: var(--ink); font: 15px/1.5 var(--font-body); resize: vertical; min-height: 56px; }
+form.ask textarea:focus { outline: none; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row .grow { flex: 1 1 auto; min-width: 0; }
+.btn { border: 0; border-radius: 10px; padding: 9px 16px; font: 600 14px var(--font-body); cursor: pointer; background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn:disabled { opacity: .5; cursor: default; }
+.attach { font-size: 13px; color: var(--muted); }
+.note { font-size: 13px; color: var(--muted); margin: 0; }
+.banner { background: var(--warn-soft); color: var(--ink); border-left: 3px solid var(--warn); padding: 10px 12px; border-radius: 0 8px 8px 0; font-size: 14px; }
+
+/* Tracker */
+.overall { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.overall .big { font: 700 40px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.bar { height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--sea); border-radius: 99px; transition: width .3s; }
+.cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.cat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.cat .head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+.pill { font: 500 11px var(--font-mono); letter-spacing: .04em; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+.pill.miss { background: var(--warn-soft); color: var(--warn); }
+.pill.done { background: var(--sea-soft); color: var(--sea); }
+.counter { display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
+.counter button { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: 600 18px var(--font-body); cursor: pointer; }
+.counter .n { font: 600 18px var(--font-mono); min-width: 3ch; text-align: center; }
+.counter input { width: 4.5em; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: 14px var(--font-mono); }
+.cat p { margin: 0; font-size: 13px; color: var(--muted); }
+.finds { display: flex; flex-direction: column; gap: 8px; }
+form.addfind { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+form.addfind input, form.addfind select { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: 14px var(--font-body); min-width: 0; }
+form.addfind .full { grid-column: 1 / -1; }
+.find { display: flex; gap: 10px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.find .txt { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.find .meta { font-size: 12px; color: var(--muted); }
+.find button { border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; }
+.sync { font-size: 12px; color: var(--muted); }
+
+/* Info */
+.regions { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.region { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+.region .kind { font: 500 11px var(--font-mono); color: var(--sea); letter-spacing: .06em; text-transform: uppercase; }
+.region p { margin: 0; font-size: 14px; color: var(--muted); }
+.people { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.links { display: flex; flex-direction: column; gap: 8px; }
+.links a { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; color: var(--ink); text-decoration: none; }
+.links a span:last-child { color: var(--muted); font-size: 13px; text-align: right; }
+.links a:hover { border-color: var(--sea); }
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; }
+footer { color: var(--muted); font-size: 12px; padding-top: 24px; border-top: 1px solid var(--line); margin-top: 24px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1 class="brand">คู่มือ <span>Leonida</span></h1>
+    <p class="sub">ไกด์ GTA VI ภาษาไทยแบบแฟนทำ: ถาม AI, ติดตามการเก็บของ, ข้อมูลแผนที่ · ไม่ใช่ของ Rockstar</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-ask" aria-controls="ask" aria-selected="true">ถาม AI</button>
+    <button role="tab" id="tab-track" aria-controls="track" aria-selected="false">เก็บของ</button>
+    <button role="tab" id="tab-map" aria-controls="map" aria-selected="false">แผนที่ & ตัวละคร</button>
+    <button role="tab" id="tab-links" aria-controls="links" aria-selected="false">แผนที่ออนไลน์</button>
+  </nav>
+
+  <!-- ASK -->
+  <section class="panel" id="ask" role="tabpanel" aria-labelledby="tab-ask">
+    <div>
+      <h2>ติดตรงไหน ถามได้เลย</h2>
+      <p class="lede">ถามวิธีผ่านภารกิจ หาเงิน หรือแนบภาพหน้าจอเกม (แชร์จาก PS App ลงมือถือได้) ให้ AI อ่านและแปลให้</p>
+    </div>
+    <div class="banner" id="askBanner">เกมเพิ่งวางขาย 19 พ.ย. 2026 AI อาจยังไม่รู้ตำแหน่งของแบบเจาะจง ถ้าไม่แน่ใจมันจะบอกตรงๆ แล้วแนะนำแผนที่ออนไลน์ให้</div>
+    <div class="chips" id="chips">
+      <button class="chip" type="button">มือใหม่ควรทำอะไรก่อนในชั่วโมงแรก</button>
+      <button class="chip" type="button">หาเงินช่วงต้นเกมยังไงดี</button>
+      <button class="chip" type="button">โดนตำรวจตามบ่อย หนียังไง</button>
+      <button class="chip" type="button">แปลข้อความภารกิจในภาพนี้ให้หน่อย</button>
+    </div>
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <form class="ask" id="askForm">
+      <label class="label" for="q">คำถาม</label>
+      <textarea id="q" placeholder="เช่น ภารกิจที่ต้องขับเรือไปเกาะ ผ่านยังไง?" rows="2"></textarea>
+      <div class="row">
+        <label class="attach grow" id="attachWrap" hidden>
+          <input type="file" id="img" accept="image/*"> แนบภาพหน้าจอ
+        </label>
+        <button class="btn ghost" type="button" id="stopBtn" hidden>หยุด</button>
+        <button class="btn" type="submit" id="sendBtn">ถาม</button>
+      </div>
+    </form>
+    <p class="note" id="askNote">คำตอบใช้โควตา Claude ของคนที่เปิดหน้านี้ ครั้งแรกจะมีหน้าต่างขออนุญาต</p>
+  </section>
+
+  <!-- TRACK -->
+  <section class="panel" id="track" role="tabpanel" aria-labelledby="tab-track" hidden>
+    <div>
+      <h2>ความคืบหน้าการเก็บของ</h2>
+      <p class="lede">กด + เมื่อเจอ ตัวเลขทั้งหมดมาจากเว็บไกด์ช่วงสัปดาห์แรกและยังเปลี่ยนได้ แก้ "ทั้งหมด" เองได้ทุกหมวด</p>
+    </div>
+    <div class="overall">
+      <span class="big" id="ovPct">0%</span>
+      <span id="ovTxt" class="note">0 จาก 0 ชิ้น</span>
+      <span class="sync grow" id="syncState"></span>
+    </div>
+    <div class="bar"><i id="ovBar" style="width:0%"></i></div>
+    <div class="cats" id="cats"></div>
+
+    <div>
+      <h3>สมุดจดตำแหน่งของฉัน</h3>
+      <p class="note">จดไว้ว่าเจออะไรที่ไหน กันลืมว่าเก็บชิ้นไหนไปแล้ว</p>
+    </div>
+    <form class="addfind" id="findForm">
+      <input id="fName" class="full" placeholder="เจออะไร เช่น Hidden Package ใต้สะพาน" required>
+      <select id="fCat" aria-label="หมวด"></select>
+      <select id="fRegion" aria-label="พื้นที่"></select>
+      <input id="fNote" class="full" placeholder="โน้ต (ไม่บังคับ)">
+      <button class="btn full" type="submit">บันทึก</button>
+    </form>
+    <div class="finds" id="finds"></div>
+  </section>
+
+  <!-- MAP & PEOPLE -->
+  <section class="panel" id="map" role="tabpanel" aria-labelledby="tab-map" hidden>
+    <div>
+      <h2>รัฐ Leonida: 6 พื้นที่ที่ยืนยันแล้ว</h2>
+      <p class="lede">รัฐสมมติที่ได้แรงบันดาลใจจากฟลอริดา ข้อมูลจากตัวอย่างเกมและข่าวก่อนวางขาย</p>
+    </div>
+    <div class="regions" id="regions"></div>
+
+    <h2>ตัวละครหลัก</h2>
+    <div class="people">
+      <div class="region"><span class="kind">ตัวเอก</span><h3>Lucia Caminos</h3><p>มีอดีตเกี่ยวกับเรือนจำ Leonida Penitentiary เป็นหนึ่งในสองตัวละครที่เล่นได้</p></div>
+      <div class="region"><span class="kind">ตัวเอก</span><h3>Jason Duval</h3><p>คู่หูของ Lucia เรื่องของเขาเริ่มที่ Leonida Keys ทั้งคู่อยู่อพาร์ตเมนต์ที่นั่นช่วงต้นเกม</p></div>
+      <div class="region"><span class="kind">ตัวประกอบ</span><h3>Brian Heder</h3><p>ให้ทั้งคู่อยู่ฟรีแลกกับการช่วยทวงหนี้ เป็นคนแรกที่โผล่ใน Trailer 2</p></div>
+    </div>
+
+    <h2>ข้อมูลเกม</h2>
+    <dl class="facts">
+      <dt>วางขาย</dt><dd>19 พ.ย. 2026 (เที่ยงคืนตามเวลาท้องถิ่น)</dd>
+      <dt>เครื่อง</dt><dd>PS5, Xbox Series X|S · ยังไม่มีบน PC</dd>
+      <dt>ขนาดไฟล์</dt><dd>สูงสุดประมาณ 212 GB (แผ่นเป็นโค้ดดาวน์โหลด)</dd>
+    </dl>
+  </section>
+
+  <!-- LINKS -->
+  <section class="panel" id="links" role="tabpanel" aria-labelledby="tab-links" hidden>
+    <div>
+      <h2>แผนที่ตำแหน่งของแบบละเอียด</h2>
+      <p class="lede">เว็บเหล่านี้ปักหมุดตำแหน่งของบนแผนที่และอัปเดตทุกวัน แต่ละเว็บนับจำนวนไม่ตรงกัน ดูวันที่อัปเดตก่อนใช้</p>
+    </div>
+    <div class="links">
+      <a href="https://www.gtabase.com/gta-6/map/" target="_blank" rel="noopener"><span>GTABase · แผนที่แบบโต้ตอบ</span><span>การ์ด, Hidden Packages</span></a>
+      <a href="https://www.gtabase.com/gta-6/map/?feature=hidden-packages" target="_blank" rel="noopener"><span>GTABase · Hidden Packages</span><span>ปักหมุด 31 จุด</span></a>
+      <a href="https://www.gtaboss.gg/gta-6/collectibles" target="_blank" rel="noopener"><span>GTABoss · ของสะสมทุกชุด</span><span>WAiNK Landmarks/Curiosities</span></a>
+      <a href="https://www.gtaboom.com/gta-6-collectibles" target="_blank" rel="noopener"><span>GTABoom · คู่มือของสะสม</span><span>รวมไกด์แต่ละหมวด</span></a>
+      <a href="https://promptowy.com/en/gta-6/gta-6-interactive-map/" target="_blank" rel="noopener"><span>Promptowy · แผนที่ Vice City & Leonida</span><span>ของที่พลาดแล้วพลาดเลย</span></a>
+    </div>
+  </section>
+
+  <footer>หน้าแฟนเมดเพื่อช่วยผู้เล่นไทย ไม่เกี่ยวข้องกับ Rockstar Games หรือ Take-Two · ข้อมูลรวบรวมเมื่อ 22 พ.ย. 2026</footer>
+</div>
+
+<script>
+(() => {
+  // ---------- static data ----------
+  const REGIONS = [
+    { id: "vice", name: "Vice City", kind: "เมืองใหญ่", desc: "ศูนย์กลางเมือง ไนต์ไลฟ์ ชายหาด และตึกสูง" },
+    { id: "keys", name: "Leonida Keys", kind: "หมู่เกาะ", desc: "เกาะเล็กทางใต้ จุดเริ่มเรื่องของ Jason และ Lucia" },
+    { id: "grass", name: "Grassrivers", kind: "ป่าพรุ", desc: "พื้นที่ชุ่มน้ำแบบเอเวอร์เกลดส์ มีจระเข้และแอร์โบ๊ท" },
+    { id: "gell", name: "Port Gellhorn", kind: "เมืองท่า", desc: "เมืองอุตสาหกรรมริมชายฝั่ง" },
+    { id: "ambro", name: "Ambrosia", kind: "ชนบท/อุตสาหกรรม", desc: "เมืองโรงงานและพื้นที่ไร่นา มีเหมืองทอง" },
+    { id: "kalaga", name: "Mount Kalaga", kind: "อุทยาน", desc: "Mount Kalaga National Park ป่าเขาและธรรมชาติ" },
+  ];
+  // Counts: from guide sites in launch week (provisional, editable by the player).
+  const CATS = [
+    { id: "packages", name: "Hidden Packages", total: 31, desc: "กล่องซ่อนตามแผนที่ (GTABase นับ 31)" },
+    { id: "landmarks", name: "WAiNK Landmarks", total: 31, desc: "สแกนสถานที่สำคัญด้วยแอปในมือถือในเกม (GTABoss นับ 31)" },
+    { id: "curios", name: "WAiNK Curiosities", total: 35, desc: "สิ่งแปลกๆ ให้สแกน (GTABoss นับ 35)" },
+    { id: "cards", name: "Trading Cards", total: 0, desc: "การ์ดสะสมหลายชุด เช่น Taylor Blanc, Drake ยังไม่มียอดรวมที่ตรงกัน ใส่เองได้" },
+    { id: "meteor", name: "Meteorite Chunks", total: 0, desc: "เศษอุกกาบาต ยอดรวมยังไม่ชัด ใส่เองได้" },
+    { id: "bowling", name: "Kingpin Bowling", total: 0, desc: "มีรายงานว่าพลาดได้ถ้าเรื่องดำเนินไปถึงบางบท", missable: true },
+    { id: "hunted", name: "Veteran Hunted", total: 0, desc: "มีรายงานว่าพลาดได้", missable: true },
+    { id: "pete", name: "Pilot Pete", total: 0, desc: "มีรายงานว่าพลาดได้", missable: true },
+  ];
+  const regionName = id => (REGIONS.find(r => r.id === id) || {}).name || "ไม่ระบุ";
+  const catName = id => (CATS.find(c => c.id === id) || {}).name || "อื่นๆ";
+
+  // ---------- tabs ----------
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  function showTab(id) {
+    tabs.forEach(t => {
+      const on = t.getAttribute("aria-controls") === id;
+      t.setAttribute("aria-selected", on);
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+    });
+    if (location.hash.slice(1) !== id) history.replaceState(null, "", "#" + id);
+  }
+  tabs.forEach(t => t.addEventListener("click", () => showTab(t.getAttribute("aria-controls"))));
+  const fromHash = () => { const h = location.hash.slice(1); if (tabs.some(t => t.getAttribute("aria-controls") === h)) showTab(h); };
+  window.addEventListener("hashchange", fromHash); fromHash();
+
+  // ---------- regions ----------
+  document.getElementById("regions").innerHTML = "";
+  REGIONS.forEach(r => {
+    const el = document.createElement("div"); el.className = "region";
+    el.innerHTML = '<span class="kind"></span><h3></h3><p></p>';
+    el.children[0].textContent = r.kind; el.children[1].textContent = r.name; el.children[2].textContent = r.desc;
+    document.getElementById("regions").appendChild(el);
+  });
+
+  // ---------- progress state ----------
+  let state = { counts: {}, totals: {}, finds: [] };
+  let docRef = null, saveTimer = null;
+  const syncEl = document.getElementById("syncState");
+  const LS = "leonida-progress";
+  try { const s = JSON.parse(localStorage.getItem(LS) || "null"); if (s) state = Object.assign(state, s); } catch {}
+
+  const totalOf = c => (state.totals[c.id] ?? c.total) | 0;
+  const countOf = c => Math.max(0, state.counts[c.id] | 0);
+
+  function save() {
+    try { localStorage.setItem(LS, JSON.stringify(state)); } catch {}
+    if (!docRef) return;
+    clearTimeout(saveTimer);
+    syncEl.textContent = "กำลังบันทึก…";
+    saveTimer = setTimeout(() => {
+      docRef.set(JSON.parse(JSON.stringify(state)))
+        .then(() => { syncEl.textContent = "บันทึกในบัญชีแล้ว"; })
+        .catch(() => { syncEl.textContent = "บันทึกในเครื่องนี้เท่านั้น"; });
+    }, 600);
+  }
+
+  function renderTracker() {
+    const wrap = document.getElementById("cats"); wrap.innerHTML = "";
+    let found = 0, total = 0;
+    CATS.forEach(c => {
+      const n = countOf(c), t = totalOf(c);
+      found += t ? Math.min(n, t) : 0; total += t;
+      const el = document.createElement("div"); el.className = "cat";
+      el.innerHTML = `
+        <div class="head"><h3></h3><span class="pill"></span></div>
+        <p></p>
+        <div class="counter">
+          <button type="button" aria-label="ลด">−</button><span class="n"></span>
+          <button type="button" aria-label="เพิ่ม">+</button>
+          <label class="note">ทั้งหมด <input type="number" min="0" inputmode="numeric" id="total-${c.id}"></label>
+        </div>
+        <div class="bar"><i></i></div>`;
+      el.querySelector("h3").textContent = c.name;
+      el.querySelector("p").textContent = c.desc;
+      const pill = el.querySelector(".pill");
+      if (t && n >= t) { pill.textContent = "ครบแล้ว"; pill.className = "pill done"; }
+      else if (c.missable) { pill.textContent = "พลาดได้"; pill.className = "pill miss"; }
+      else pill.remove();
+      el.querySelector(".n").textContent = t ? `${n}/${t}` : `${n}`;
+      el.querySelector(".bar > i").style.width = (t ? Math.min(100, n / t * 100) : 0) + "%";
+      const [minus, plus] = el.querySelectorAll(".counter button");
+      minus.onclick = () => { state.counts[c.id] = Math.max(0, n - 1); save(); renderTracker(); };
+      plus.onclick = () => { state.counts[c.id] = t ? Math.min(t, n + 1) : n + 1; save(); renderTracker(); };
+      const inp = el.querySelector("input"); inp.value = t || "";
+      inp.onchange = () => { state.totals[c.id] = Math.max(0, parseInt(inp.value, 10) || 0); save(); renderTracker(); };
+      wrap.appendChild(el);
+    });
+    const pct = total ? Math.round(found / total * 100) : 0;
+    document.getElementById("ovPct").textContent = pct + "%";
+    document.getElementById("ovTxt").textContent = `${found} จาก ${total} ชิ้น (นับเฉพาะหมวดที่ใส่ยอดรวม)`;
+    document.getElementById("ovBar").style.width = pct + "%";
+    renderFinds();
+  }
+
+  const fCat = document.getElementById("fCat"), fRegion = document.getElementById("fRegion");
+  CATS.forEach(c => fCat.add(new Option(c.name, c.id)));
+  fCat.add(new Option("อื่นๆ", "other"));
+  REGIONS.forEach(r => fRegion.add(new Option(r.name, r.id)));
+  fRegion.add(new Option("ไม่แน่ใจ", "unknown"));
+
+  function renderFinds() {
+    const box = document.getElementById("finds"); box.innerHTML = "";
+    if (!state.finds.length) {
+      const p = document.createElement("p"); p.className = "note";
+      p.textContent = "ยังไม่มีบันทึก ลองจดชิ้นแรกที่เจอด้านบน";
+      box.appendChild(p); return;
+    }
+    state.finds.slice().reverse().forEach(f => {
+      const el = document.createElement("div"); el.className = "find";
+      el.innerHTML = '<div class="txt"><div class="t"></div><div class="meta"></div></div><button type="button">ลบ</button>';
+      el.querySelector(".t").textContent = f.name;
+      el.querySelector(".meta").textContent = [catName(f.cat), regionName(f.region), f.note].filter(Boolean).join(" · ");
+      el.querySelector("button").onclick = () => { state.finds = state.finds.filter(x => x.id !== f.id); save(); renderFinds(); };
+      box.appendChild(el);
+    });
+  }
+  document.getElementById("findForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const name = document.getElementById("fName").value.trim(); if (!name) return;
+    state.finds.push({ id: Date.now().toString(36), name, cat: fCat.value, region: fRegion.value,
+                       note: document.getElementById("fNote").value.trim() });
+    if (state.finds.length > 500) state.finds.shift();
+    document.getElementById("fName").value = ""; document.getElementById("fNote").value = "";
+    save(); renderFinds();
+  });
+  renderTracker();
+
+  // Cloud sync: private per-player doc under data/users/<id>/
+  (async () => {
+    if (!window.claude) { syncEl.textContent = "บันทึกในเครื่องนี้เท่านั้น"; return; }
+    const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    if (!db || !user) { syncEl.textContent = "บันทึกในเครื่องนี้เท่านั้น"; return; }
+    try {
+      const uid = await user.id();
+      docRef = db.doc(`data/users/${uid}/progress`);
+      const snap = await docRef.get();
+      if (snap.exists) { state = Object.assign({ counts: {}, totals: {}, finds: [] }, snap.data()); renderTracker(); }
+      else if (Object.keys(state.counts).length || state.finds.length) save();
+      syncEl.textContent = "ซิงก์กับบัญชีแล้ว เปิดเครื่องไหนก็เห็น";
+    } catch { docRef = null; syncEl.textContent = "บันทึกในเครื่องนี้เท่านั้น"; }
+  })();
+
+  // ---------- Ask AI ----------
+  const chat = document.getElementById("chat"), q = document.getElementById("q");
+  const form = document.getElementById("askForm"), sendBtn = document.getElementById("sendBtn");
+  const stopBtn = document.getElementById("stopBtn"), imgInput = document.getElementById("img");
+  const turnsLog = []; // [{role, content}] text only, last few turns
+  let sample = null, ctl = null;
+
+  const PREAMBLE = `คุณคือผู้ช่วยไกด์เกม Grand Theft Auto VI สำหรับผู้เล่นชาวไทยบน PS5
+ข้อเท็จจริง: เกมวางขายวันที่ 19 พ.ย. 2026 ฉากคือรัฐ Leonida (Vice City, Leonida Keys, Grassrivers, Port Gellhorn, Ambrosia, Mount Kalaga National Park) ตัวเอกคือ Lucia Caminos และ Jason Duval
+กฎ:
+- ตอบเป็นภาษาไทยแบบเพื่อนเล่นเกมคุยกัน สั้น กระชับ ใช้ข้อ ๆ ได้ ชื่อเฉพาะในเกมคงเป็นภาษาอังกฤษ
+- ความรู้ของคุณอาจมาจากก่อนเกมวางขาย ห้ามแต่งตำแหน่งของ จำนวนของสะสม ชื่อภารกิจ หรือวิธีผ่านภารกิจที่ไม่แน่ใจ ถ้าไม่รู้ให้บอกตรง ๆ แล้วแนะนำให้ดูแผนที่ออนไลน์ เช่น GTABase หรือ GTABoss
+- คำแนะนำทั่วไปที่ใช้ได้กับเกม GTA (การหนีตำรวจ การจัดการเงิน การขับรถ) ให้ได้ แต่บอกว่าเป็นคำแนะนำทั่วไป
+- ถ้ามีภาพหน้าจอ อ่านข้อความภาษาอังกฤษในภาพ แปลเป็นไทย และอธิบายว่าผู้เล่นควรทำอะไรต่อ`;
+
+  function bubble(cls, text, imgUrl) {
+    const el = document.createElement("div"); el.className = "msg " + cls;
+    if (imgUrl) { const im = document.createElement("img"); im.src = imgUrl; im.alt = "ภาพหน้าจอที่แนบ"; el.appendChild(im); }
+    const t = document.createElement("span"); t.textContent = text; el.appendChild(t);
+    chat.appendChild(el); el.scrollIntoView({ block: "nearest" });
+    return t;
+  }
+  const ERR = {
+    not_granted: "ยังไม่ได้อนุญาตให้หน้านี้ใช้ Claude ฟีเจอร์ถาม AI เลยปิดไว้",
+    rate_limited: "ถามถี่ไป รอสักครู่แล้วลองใหม่",
+    aborted: "หยุดแล้ว",
+  };
+
+  function setBusy(b) { sendBtn.disabled = b; stopBtn.hidden = !b; q.disabled = b; }
+
+  async function ask(text) {
+    if (!sample || !text.trim()) return;
+    const file = imgInput.files && imgInput.files[0];
+    const imgUrl = file ? URL.createObjectURL(file) : null;
+    bubble("me", text, imgUrl);
+    const out = bubble("ai", "กำลังคิด…");
+    q.value = ""; imgInput.value = "";
+    setBusy(true);
+    ctl = new AbortController();
+    const turns = turnsLog.slice(-6).map(h => ({ ...h }));
+    const userTurn = (turns.length ? "" : PREAMBLE + "\n\nคำถาม: ") + text;
+    if (turns.length) turns[0] = { role: "user", content: PREAMBLE + "\n\nคำถาม: " + turns[0].content };
+    turns.push({ role: "user", content: userTurn });
+    try {
+      const res = await sample(turns, {
+        signal: ctl.signal, cache: false,
+        images: file ? [file] : undefined,
+        onText: ({ text }) => { out.textContent = text; },
+      });
+      out.textContent = res.text;
+      turnsLog.push({ role: "user", content: text }, { role: "assistant", content: res.text });
+    } catch (e) {
+      out.parentElement.classList.add("err");
+      out.textContent = (e && e.text ? e.text + "\n\n" : "") + (ERR[e && e.code] || "ถามไม่สำเร็จ ลองใหม่อีกครั้ง");
+      if (e && e.code === "not_granted") { form.hidden = true; document.getElementById("chips").hidden = true; }
+    } finally {
+      setBusy(false); ctl = null;
+    }
+  }
+  stopBtn.onclick = () => ctl && ctl.abort();
+  form.addEventListener("submit", e => { e.preventDefault(); ask(q.value); });
+  q.addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); ask(q.value); } });
+  document.querySelectorAll("#chips .chip").forEach(c => c.addEventListener("click", () => { q.value = c.textContent; q.focus(); }));
+
+  // Sample opening state: an example exchange, clearly labelled.
+  const ex = bubble("ai", "ตัวอย่าง: ถามได้เช่น \"ขับรถชนแล้วดาวขึ้น หนียังไง\" หรือแนบภาพหน้าจอภารกิจให้แปล");
+  ex.parentElement.style.opacity = ".75";
+
+  (async () => {
+    if (!window.claude) { unavailable(); return; }
+    sample = await claude.use("sample");
+    if (!sample) { unavailable(); return; }
+    try { const lim = await sample.limits(); if (lim && lim.images) document.getElementById("attachWrap").hidden = false; } catch {}
+  })();
+  function unavailable() {
+    form.hidden = true; document.getElementById("chips").hidden = true;
+    document.getElementById("askNote").textContent = "ถาม AI ใช้ได้เมื่อเปิดหน้านี้ใน claude.ai ตอนนี้ใช้แท็บอื่นได้ตามปกติ";
+  }
+})();
+</script>
