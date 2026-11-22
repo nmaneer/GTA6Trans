@@ -1,6 +1,7 @@
 <title>คู่มือ Leonida</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
 /* Layout: phone-first app shell — sticky tab bar, one column of panels, widens to two columns on desktop. */
@@ -42,7 +43,7 @@ body {
   padding-block: 0 48px;
 }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
-.wrap { max-width: 960px; margin: 0 auto; }
+.wrap { max-width: 1180px; margin: 0 auto; }
 header.top { padding-block: 20px 8px; display: flex; flex-direction: column; gap: 4px; }
 .brand { font: 700 28px/1.1 var(--font-display); letter-spacing: .01em; text-wrap: balance; margin: 0; }
 .brand span { color: var(--accent); }
@@ -120,31 +121,65 @@ form.addfind .full { grid-column: 1 / -1; }
 #spotChips .chip[aria-pressed="mixed"] { opacity: 1; text-decoration: none; }
 #spotChips .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-style: solid; }
 
-/* Pin map */
-.maptools label.btn { display: inline-flex; align-items: center; }
-.linkbtn { border: 0; background: none; color: var(--sea); font: inherit; text-decoration: underline; cursor: pointer; padding: 0 4px; }
-.viewport { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--sea-soft); touch-action: none; aspect-ratio: 4 / 5; max-height: 72vh; width: 100%; max-width: 100%; user-select: none; -webkit-user-select: none; cursor: grab; }
-.viewport.placing { cursor: crosshair; outline: 2px dashed var(--accent); outline-offset: -2px; }
-.stage { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transform-origin: 0 0; }
-.stage img, .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.stage img { object-fit: fill; }
-#schematic .sea { fill: var(--sea-soft); }
-#schematic .land, #schematic .keys circle { fill: var(--surface); stroke: var(--line); stroke-width: 2; }
-#schematic .lbl text { fill: var(--muted); font: 600 14px var(--font-body); }
-#schematic .cap { fill: var(--muted); font: 11px var(--font-body); }
-.pinlayer { position: absolute; inset: 0; }
-.pin { position: absolute; width: 28px; height: 28px; margin: -28px 0 0 -14px; border: 0; padding: 0; background: none; cursor: pointer; transform-origin: 50% 100%; }
-.pin svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 1px 2px rgba(0,0,0,.35)); }
-.pin .body { stroke: var(--surface); stroke-width: 1.5; }
-.pin .dot { fill: var(--surface); }
-.pin.found { opacity: .45; }
-.pin.sel .body { stroke: var(--ink); stroke-width: 2.5; }
-.t-collect { --pc: var(--sea); } .t-special { --pc: var(--accent); } .t-shop { --pc: #7a5cd6; } .t-mission { --pc: var(--warn); } .t-other { --pc: var(--muted); }
-.pin .body, .swatch { fill: var(--pc); background: var(--pc); }
-.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: 0; }
-.chip[aria-pressed="false"] { opacity: .45; text-decoration: line-through; }
-.pindetail { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-.pindetail .row .btn { padding: 7px 12px; }
+/* Pin map (Leaflet) */
+:root { --l-flamingo: #e2559a; --l-cards: #d9a400; --l-meteor: #8b5cf6; --l-waink: #14a3a0; --l-underwater: #2f7fe0; --l-collect: #5aa469; --l-safes: #6b7280; --l-special: #f05a3c; --l-mission: #e08a00; --l-other: #94a3a0; }
+.mapshell { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 820px) { .mapshell { grid-template-columns: 260px minmax(0, 1fr); } }
+.layers { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.lhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.lstat { font: 500 12px var(--font-mono); color: var(--muted); }
+.layerlist { display: grid; grid-template-columns: 1fr; gap: 2px; }
+@media (max-width: 819px) { .layerlist { grid-template-columns: 1fr 1fr; } .mapwrap { order: -1; } }
+.lrow { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; cursor: pointer; font-size: 14px; min-width: 0; }
+.lrow:hover { background: var(--bg); }
+.lrow input { accent-color: var(--sea); margin: 0; }
+.lrow .nm { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lrow .ct { font: 500 12px var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.ldot { width: 12px; height: 12px; border-radius: 50%; background: var(--lc); flex: 0 0 auto; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--lc); }
+.hidefound { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+.hidefound input { accent-color: var(--sea); }
+.lactions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.lactions label.btn { display: inline-flex; align-items: center; }
+.results { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.results button { text-align: left; border: 0; border-bottom: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 8px 10px; font: 14px var(--font-body); cursor: pointer; }
+.results button:last-child { border-bottom: 0; }
+.results button:hover { background: var(--bg); }
+.mapwrap { position: relative; min-width: 0; }
+#lmap, #pinForm, #shareBox { scroll-margin-top: 72px; }
+#lmap { height: min(72vh, 640px); min-height: 360px; border-radius: 14px; border: 1px solid var(--line); background: var(--sea-soft); }
+#lmap.placing { cursor: crosshair; outline: 2px dashed var(--accent); outline-offset: -2px; }
+.fab { position: absolute; right: 12px; bottom: 12px; z-index: 500; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.placehint { position: absolute; left: 12px; right: 12px; top: 12px; z-index: 500; background: var(--surface); color: var(--ink); border: 1px solid var(--accent); border-radius: 10px; padding: 8px 12px; font-size: 14px; }
+.mapfail { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
+.linkbtn { border: 0; background: none; color: var(--sea); font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; padding: 0 4px; }
+.schematic .sea { fill: var(--sea-soft); }
+.schematic .land, .schematic .keys circle { fill: var(--surface); stroke: var(--line); stroke-width: 2; }
+.schematic .lbl text { fill: var(--muted); font: 600 14px var(--font-body); }
+.schematic .cap { fill: var(--muted); font: 11px var(--font-body); }
+.lpin { background: none; border: 0; }
+.lpin svg { width: 28px; height: 28px; display: block; filter: drop-shadow(0 1px 2px rgba(0,0,0,.4)); }
+.lpin .body { fill: var(--lc); stroke: #fff; stroke-width: 1.5; }
+.lpin .dot { fill: #fff; }
+.lpin.found { opacity: .45; }
+.lpin.pending .body { stroke: var(--ink); stroke-dasharray: 3 2; }
+.leaflet-container { font: 14px var(--font-body); background: var(--sea-soft); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--surface); color: var(--ink); box-shadow: 0 3px 14px rgba(0,0,0,.3); }
+.leaflet-popup-content { margin: 12px 14px; min-width: 200px; }
+.leaflet-container a.leaflet-popup-close-button { color: var(--muted); }
+.leaflet-bar a { background: var(--surface); color: var(--ink); border-bottom-color: var(--line); }
+.leaflet-bar a:hover { background: var(--bg); }
+.pop { display: flex; flex-direction: column; gap: 6px; }
+.pop .tag { display: inline-flex; align-items: center; gap: 6px; font: 500 11px var(--font-mono); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.pop h3 { font-size: 15px; }
+.pop .row .btn { padding: 6px 10px; font-size: 13px; }
+.leaflet-popup-content .pop .btn.ghost { color: var(--ink); border-color: var(--line); background: transparent; }
+.leaflet-popup-content .pop .btn { color: var(--accent-ink); }
+.leaflet-popup-content .pop .btn.ghost { color: var(--ink); }
+.sharebox { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.sharebox textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: 12px var(--font-mono); padding: 8px; }
+
+/* Leaflet 1.9.4 base styles (BSD-2-Clause) */
+.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer,.leaflet-layer{position:absolute;left:0;top:0;}.leaflet-container{overflow:hidden;}.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-user-drag:none;}.leaflet-tile::selection{background:transparent;}.leaflet-safari .leaflet-tile{image-rendering:-webkit-optimize-contrast;}.leaflet-safari .leaflet-tile-container{width:1600px;height:1600px;-webkit-transform-origin:0 0;}.leaflet-marker-icon,.leaflet-marker-shadow{display:block;}.leaflet-container .leaflet-overlay-pane svg{max-width:none !important;max-height:none !important;}.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-shadow-pane img,.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer,.leaflet-container .leaflet-tile{max-width:none !important;max-height:none !important;width:auto;padding:0;}.leaflet-container img.leaflet-tile{mix-blend-mode:plus-lighter;}.leaflet-container.leaflet-touch-zoom{-ms-touch-action:pan-x pan-y;touch-action:pan-x pan-y;}.leaflet-container.leaflet-touch-drag{-ms-touch-action:pinch-zoom;touch-action:none;touch-action:pinch-zoom;}.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom{-ms-touch-action:none;touch-action:none;}.leaflet-container{-webkit-tap-highlight-color:transparent;}.leaflet-container a{-webkit-tap-highlight-color:rgba(51,181,229,0.4);}.leaflet-tile{filter:inherit;visibility:hidden;}.leaflet-tile-loaded{visibility:inherit;}.leaflet-zoom-box{width:0;height:0;-moz-box-sizing:border-box;box-sizing:border-box;z-index:800;}.leaflet-overlay-pane svg{-moz-user-select:none;}.leaflet-pane{z-index:400;}.leaflet-tile-pane{z-index:200;}.leaflet-overlay-pane{z-index:400;}.leaflet-shadow-pane{z-index:500;}.leaflet-marker-pane{z-index:600;}.leaflet-tooltip-pane{z-index:650;}.leaflet-popup-pane{z-index:700;}.leaflet-map-pane canvas{z-index:100;}.leaflet-map-pane svg{z-index:200;}.leaflet-vml-shape{width:1px;height:1px;}.lvml{behavior:url(#default#VML);display:inline-block;position:absolute;}.leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;pointer-events:auto;}.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none;}.leaflet-top{top:0;}.leaflet-right{right:0;}.leaflet-bottom{bottom:0;}.leaflet-left{left:0;}.leaflet-control{float:left;clear:both;}.leaflet-right .leaflet-control{float:right;}.leaflet-top .leaflet-control{margin-top:10px;}.leaflet-bottom .leaflet-control{margin-bottom:10px;}.leaflet-left .leaflet-control{margin-left:10px;}.leaflet-right .leaflet-control{margin-right:10px;}.leaflet-fade-anim .leaflet-popup{opacity:0;-webkit-transition:opacity 0.2s linear;-moz-transition:opacity 0.2s linear;transition:opacity 0.2s linear;}.leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity:1;}.leaflet-zoom-animated{-webkit-transform-origin:0 0;-ms-transform-origin:0 0;transform-origin:0 0;}svg.leaflet-zoom-animated{will-change:transform;}.leaflet-zoom-anim .leaflet-zoom-animated{-webkit-transition:-webkit-transform 0.25s cubic-bezier(0,0,0.25,1);-moz-transition:-moz-transform 0.25s cubic-bezier(0,0,0.25,1);transition:transform 0.25s cubic-bezier(0,0,0.25,1);}.leaflet-zoom-anim .leaflet-tile,.leaflet-pan-anim .leaflet-tile{-webkit-transition:none;-moz-transition:none;transition:none;}.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden;}.leaflet-interactive{cursor:pointer;}.leaflet-grab{cursor:-webkit-grab;cursor:-moz-grab;cursor:grab;}.leaflet-crosshair,.leaflet-crosshair .leaflet-interactive{cursor:crosshair;}.leaflet-popup-pane,.leaflet-control{cursor:auto;}.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-grab .leaflet-interactive,.leaflet-dragging .leaflet-marker-draggable{cursor:move;cursor:-webkit-grabbing;cursor:-moz-grabbing;cursor:grabbing;}.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-image-layer,.leaflet-pane>svg path,.leaflet-tile-container{pointer-events:none;}.leaflet-marker-icon.leaflet-interactive,.leaflet-image-layer.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive,svg.leaflet-image-layer.leaflet-interactive path{pointer-events:visiblePainted;pointer-events:auto;}.leaflet-container{background:#ddd;outline-offset:1px;}.leaflet-container a{color:#0078A8;}.leaflet-zoom-box{border:2px dotted #38f;background:rgba(255,255,255,0.5);}.leaflet-container{font-family:"Helvetica Neue",Arial,Helvetica,sans-serif;font-size:12px;font-size:0.75rem;line-height:1.5;}.leaflet-bar{box-shadow:0 1px 5px rgba(0,0,0,0.65);border-radius:4px;}.leaflet-bar a{background-color:#fff;border-bottom:1px solid #ccc;width:26px;height:26px;line-height:26px;display:block;text-align:center;text-decoration:none;color:black;}.leaflet-bar a,.leaflet-control-layers-toggle{background-position:50% 50%;background-repeat:no-repeat;display:block;}.leaflet-bar a:hover,.leaflet-bar a:focus{background-color:#f4f4f4;}.leaflet-bar a:first-child{border-top-left-radius:4px;border-top-right-radius:4px;}.leaflet-bar a:last-child{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-bottom:none;}.leaflet-bar a.leaflet-disabled{cursor:default;background-color:#f4f4f4;color:#bbb;}.leaflet-touch .leaflet-bar a{width:30px;height:30px;line-height:30px;}.leaflet-touch .leaflet-bar a:first-child{border-top-left-radius:2px;border-top-right-radius:2px;}.leaflet-touch .leaflet-bar a:last-child{border-bottom-left-radius:2px;border-bottom-right-radius:2px;}.leaflet-control-zoom-in,.leaflet-control-zoom-out{font:bold 18px 'Lucida Console',Monaco,monospace;text-indent:1px;}.leaflet-touch .leaflet-control-zoom-in,.leaflet-touch .leaflet-control-zoom-out{font-size:22px;}.leaflet-control-layers{box-shadow:0 1px 5px rgba(0,0,0,0.4);background:#fff;border-radius:5px;}.leaflet-touch .leaflet-control-layers-toggle{width:44px;height:44px;}.leaflet-control-layers .leaflet-control-layers-list,.leaflet-control-layers-expanded .leaflet-control-layers-toggle{display:none;}.leaflet-control-layers-expanded .leaflet-control-layers-list{display:block;position:relative;}.leaflet-control-layers-expanded{padding:6px 10px 6px 6px;color:#333;background:#fff;}.leaflet-control-layers-scrollbar{overflow-y:scroll;overflow-x:hidden;padding-right:5px;}.leaflet-control-layers-selector{margin-top:2px;position:relative;top:1px;}.leaflet-control-layers label{display:block;font-size:13px;font-size:1.08333em;}.leaflet-control-layers-separator{height:0;border-top:1px solid #ddd;margin:5px -10px 5px -6px;}.leaflet-container .leaflet-control-attribution{background:#fff;background:rgba(255,255,255,0.8);margin:0;}.leaflet-control-attribution,.leaflet-control-scale-line{padding:0 5px;color:#333;line-height:1.4;}.leaflet-control-attribution a{text-decoration:none;}.leaflet-control-attribution a:hover,.leaflet-control-attribution a:focus{text-decoration:underline;}.leaflet-attribution-flag{display:inline !important;vertical-align:baseline !important;width:1em;height:0.6669em;}.leaflet-left .leaflet-control-scale{margin-left:5px;}.leaflet-bottom .leaflet-control-scale{margin-bottom:5px;}.leaflet-control-scale-line{border:2px solid #777;border-top:none;line-height:1.1;padding:2px 5px 1px;white-space:nowrap;-moz-box-sizing:border-box;box-sizing:border-box;background:rgba(255,255,255,0.8);text-shadow:1px 1px #fff;}.leaflet-control-scale-line:not(:first-child){border-top:2px solid #777;border-bottom:none;margin-top:-2px;}.leaflet-control-scale-line:not(:first-child):not(:last-child){border-bottom:2px solid #777;}.leaflet-touch .leaflet-control-attribution,.leaflet-touch .leaflet-control-layers,.leaflet-touch .leaflet-bar{box-shadow:none;}.leaflet-touch .leaflet-control-layers,.leaflet-touch .leaflet-bar{border:2px solid rgba(0,0,0,0.2);background-clip:padding-box;}.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px;}.leaflet-popup-content-wrapper{padding:1px;text-align:left;border-radius:12px;}.leaflet-popup-content{margin:13px 24px 13px 20px;line-height:1.3;font-size:13px;font-size:1.08333em;min-height:1px;}.leaflet-popup-content p{margin:17px 0;margin:1.3em 0;}.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-top:-1px;margin-left:-20px;overflow:hidden;pointer-events:none;}.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;pointer-events:auto;-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);-ms-transform:rotate(45deg);transform:rotate(45deg);}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:white;color:#333;box-shadow:0 3px 14px rgba(0,0,0,0.4);}.leaflet-container a.leaflet-popup-close-button{position:absolute;top:0;right:0;border:none;text-align:center;width:24px;height:24px;font:16px/24px Tahoma,Verdana,sans-serif;color:#757575;text-decoration:none;background:transparent;}.leaflet-container a.leaflet-popup-close-button:hover,.leaflet-container a.leaflet-popup-close-button:focus{color:#585858;}.leaflet-popup-scrolled{overflow:auto;}.leaflet-oldie .leaflet-popup-content-wrapper{-ms-zoom:1;}.leaflet-oldie .leaflet-popup-tip{width:24px;margin:0 auto;-ms-filter:"progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678,M12=0.70710678,M21=-0.70710678,M22=0.70710678)";filter:progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678,M12=0.70710678,M21=-0.70710678,M22=0.70710678);}.leaflet-oldie .leaflet-control-zoom,.leaflet-oldie .leaflet-control-layers,.leaflet-oldie .leaflet-popup-content-wrapper,.leaflet-oldie .leaflet-popup-tip{border:1px solid #999;}.leaflet-div-icon{background:#fff;border:1px solid #666;}.leaflet-tooltip{position:absolute;padding:6px;background-color:#fff;border:1px solid #fff;border-radius:3px;color:#222;white-space:nowrap;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,0.4);}.leaflet-tooltip.leaflet-interactive{cursor:pointer;pointer-events:auto;}.leaflet-tooltip-top:before,.leaflet-tooltip-bottom:before,.leaflet-tooltip-left:before,.leaflet-tooltip-right:before{position:absolute;pointer-events:none;border:6px solid transparent;background:transparent;content:"";}.leaflet-tooltip-bottom{margin-top:6px;}.leaflet-tooltip-top{margin-top:-6px;}.leaflet-tooltip-bottom:before,.leaflet-tooltip-top:before{left:50%;margin-left:-6px;}.leaflet-tooltip-top:before{bottom:0;margin-bottom:-12px;border-top-color:#fff;}.leaflet-tooltip-bottom:before{top:0;margin-top:-12px;margin-left:-6px;border-bottom-color:#fff;}.leaflet-tooltip-left{margin-left:-6px;}.leaflet-tooltip-right{margin-left:6px;}.leaflet-tooltip-left:before,.leaflet-tooltip-right:before{top:50%;margin-top:-6px;}.leaflet-tooltip-left:before{right:0;margin-right:-12px;border-left-color:#fff;}.leaflet-tooltip-right:before{left:0;margin-left:-12px;border-right-color:#fff;}@media print{.leaflet-control{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
 
 /* Info */
 .regions { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
@@ -173,7 +208,7 @@ footer { color: var(--muted); font-size: 12px; padding-top: 24px; border-top: 1p
   <nav class="tabs" role="tablist">
     <button role="tab" id="tab-ask" aria-controls="ask" aria-selected="true">ถาม AI</button>
     <button role="tab" id="tab-track" aria-controls="track" aria-selected="false">เก็บของ</button>
-    <button role="tab" id="tab-pins" aria-controls="pins" aria-selected="false">แผนที่ปักหมุด</button>
+    <button role="tab" id="tab-pins" aria-controls="pins" aria-selected="false">แผนที่</button>
     <button role="tab" id="tab-map" aria-controls="map" aria-selected="false">พื้นที่ & ตัวละคร</button>
     <button role="tab" id="tab-links" aria-controls="links" aria-selected="false">แผนที่ออนไลน์</button>
   </nav>
@@ -237,65 +272,81 @@ footer { color: var(--muted); font-size: 12px; padding-top: 24px; border-top: 1p
   <!-- PIN MAP -->
   <section class="panel" id="pins" role="tabpanel" aria-labelledby="tab-pins" hidden>
     <div>
-      <h2>แผนที่ปักหมุดของฉัน</h2>
-      <p class="lede">อัปโหลดภาพแผนที่จากในเกม แล้วปักจุดเก็บของหรือจุดพิเศษเอง ลากเพื่อเลื่อน หมุนล้อเมาส์หรือใช้สองนิ้วเพื่อซูม</p>
+      <h2>แผนที่ Leonida</h2>
+      <p class="lede">แผนที่ซูมได้ เลือกหมวดหมุดที่แถบข้าง แตะหมุดเพื่อดูรายละเอียดและกดว่าเก็บแล้ว อัปโหลดภาพแผนที่จากในเกมเป็นพื้นหลังเพื่อปักให้ตรงจุด</p>
     </div>
 
-    <div class="maptools row">
-      <button class="btn" type="button" id="addPinBtn">+ ปักหมุด</button>
-      <label class="btn ghost" for="mapFile" id="mapFileLabel">อัปโหลดภาพแผนที่</label>
-      <input type="file" id="mapFile" accept="image/*" hidden>
-      <button class="btn ghost" type="button" id="resetView">รีเซ็ตมุมมอง</button>
-      <span class="sync grow" id="mapState"></span>
-    </div>
-    <div class="banner" id="placeHint" hidden>แตะบนแผนที่ตรงจุดที่ต้องการปัก <button class="linkbtn" type="button" id="cancelPlace">ยกเลิก</button></div>
+    <div class="mapshell">
+      <aside class="layers" aria-label="หมวดหมุด">
+        <div class="lhead">
+          <div class="label">หมุดของฉัน</div>
+          <div class="lstat" id="layerStat">0 หมุด</div>
+        </div>
+        <input class="search" id="pinSearch" type="search" placeholder="ค้นหาหมุด" aria-label="ค้นหาหมุด">
+        <div class="results" id="pinResults" hidden></div>
+        <div class="ltoggle row">
+          <button class="linkbtn" type="button" id="layersAll">แสดงทั้งหมด</button>
+          <button class="linkbtn" type="button" id="layersNone">ซ่อนทั้งหมด</button>
+        </div>
+        <div class="layerlist" id="layerList"></div>
+        <label class="hidefound"><input type="checkbox" id="hideFound"> ซ่อนหมุดที่เก็บแล้ว</label>
+        <div class="lactions">
+          <label class="btn ghost" for="mapFile" id="mapFileLabel">อัปโหลดภาพแผนที่</label>
+          <input type="file" id="mapFile" accept="image/*" hidden>
+          <button class="btn ghost" type="button" id="shareBtn">แชร์/นำเข้าหมุด</button>
+          <span class="sync" id="mapState"></span>
+        </div>
+      </aside>
 
-    <div class="viewport" id="viewport" tabindex="0" aria-label="แผนที่ ลากเพื่อเลื่อน ซูมด้วยล้อเมาส์หรือสองนิ้ว">
-      <div class="stage" id="stage">
-        <img id="mapImg" alt="ภาพแผนที่ที่อัปโหลด" hidden draggable="false">
-        <svg id="schematic" viewBox="0 0 400 500" role="img" aria-label="แผนผังคร่าวๆ ของรัฐ Leonida ไม่ตรงสเกล">
-          <rect width="400" height="500" class="sea"/>
-          <path class="land" d="M40 40 H330 Q360 40 360 80 V170 Q350 230 340 300 Q330 380 300 430 Q280 460 255 455 Q230 445 220 400 Q205 340 180 300 Q140 250 120 200 Q100 150 60 120 Q40 100 40 70 Z"/>
-          <g class="keys"><circle cx="230" cy="470" r="6"/><circle cx="205" cy="478" r="5"/><circle cx="180" cy="484" r="4"/><circle cx="158" cy="488" r="3.5"/></g>
-          <g class="lbl">
-            <text x="110" y="80">Port Gellhorn</text>
-            <text x="250" y="90">Mount Kalaga</text>
-            <text x="240" y="190">Ambrosia</text>
-            <text x="225" y="330">Grassrivers</text>
-            <text x="312" y="380" text-anchor="end">Vice City</text>
-            <text x="190" y="462" text-anchor="end">Leonida Keys</text>
-          </g>
-          <text x="200" y="22" class="cap" text-anchor="middle">ตำแหน่งพื้นที่โดยประมาณ ไม่ตรงสเกล · อัปโหลดแผนที่จริงเพื่อปักให้แม่น</text>
-        </svg>
-        <div class="pinlayer" id="pinLayer"></div>
+      <div class="mapwrap">
+        <div id="lmap" aria-label="แผนที่ ลากเพื่อเลื่อน ซูมด้วยปุ่ม + − ล้อเมาส์ หรือสองนิ้ว"></div>
+        <button class="btn fab" type="button" id="addPinBtn">+ ปักหมุด</button>
+        <div class="placehint" id="placeHint" hidden>แตะบนแผนที่ตรงจุดที่ต้องการปัก <button class="linkbtn" type="button" id="cancelPlace">ยกเลิก</button></div>
+        <div class="mapfail" id="mapFail" hidden>โหลดแผนที่ไม่ได้ ลองรีเฟรชหน้า</div>
       </div>
     </div>
 
-    <div class="chips" id="pinFilters"></div>
-
     <form class="addfind" id="pinForm" hidden>
-      <input id="pName" class="full" placeholder="ชื่อจุด เช่น Hidden Package หลังปั๊มน้ำมัน" required>
-      <select id="pType" aria-label="ประเภท"></select>
-      <select id="pCat" aria-label="หมวดของสะสม"></select>
+      <div class="label full">หมุดใหม่</div>
+      <input id="pName" class="full" placeholder="ชื่อจุด เช่น Cocaine Flamingo หลังปั๊มน้ำมัน" required>
+      <select id="pType" class="full" aria-label="หมวด"></select>
       <input id="pNote" class="full" placeholder="โน้ต เช่น ต้องว่ายน้ำไป (ไม่บังคับ)">
       <button class="btn ghost" type="button" id="pinCancel">ยกเลิก</button>
       <button class="btn" type="submit">บันทึกหมุด</button>
     </form>
 
-    <div class="pindetail" id="pinDetail" hidden></div>
+    <div class="sharebox" id="shareBox" hidden>
+      <h3>แชร์หมุดกับเพื่อน</h3>
+      <p class="note">กด "คัดลอกหมุดของฉัน" แล้วส่งข้อความให้เพื่อน เพื่อนวางในช่องนี้แล้วกดนำเข้า หมุดจะไปอยู่ตำแหน่งเดียวกันถ้าใช้ภาพแผนที่แบบเดียวกัน (แคปแผนที่ทั้งรัฐ ซูมออกสุด)</p>
+      <textarea id="shareText" rows="4" aria-label="ข้อมูลหมุด"></textarea>
+      <div class="row">
+        <button class="btn ghost" type="button" id="copyPins">คัดลอกหมุดของฉัน</button>
+        <button class="btn" type="button" id="importPins">นำเข้า</button>
+        <span class="sync" id="shareState"></span>
+      </div>
+    </div>
+
+    <template id="schematicTpl">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" class="schematic">
+        <rect width="400" height="500" class="sea"/>
+        <path class="land" d="M40 40 H330 Q360 40 360 80 V170 Q350 230 340 300 Q330 380 300 430 Q280 460 255 455 Q230 445 220 400 Q205 340 180 300 Q140 250 120 200 Q100 150 60 120 Q40 100 40 70 Z"/>
+        <g class="keys"><circle cx="230" cy="470" r="6"/><circle cx="205" cy="478" r="5"/><circle cx="180" cy="484" r="4"/><circle cx="158" cy="488" r="3.5"/></g>
+        <g class="lbl">
+          <text x="110" y="80">Port Gellhorn</text><text x="250" y="90">Mount Kalaga</text>
+          <text x="240" y="190">Ambrosia</text><text x="225" y="330">Grassrivers</text>
+          <text x="312" y="380" text-anchor="end">Vice City</text><text x="190" y="462" text-anchor="end">Leonida Keys</text>
+        </g>
+        <text x="200" y="22" class="cap" text-anchor="middle">ตำแหน่งพื้นที่โดยประมาณ ไม่ตรงสเกล · อัปโหลดแผนที่จริงเพื่อปักให้แม่น</text>
+      </svg>
+    </template>
 
     <div>
       <h3>สารบัญจุดจากเว็บไกด์</h3>
-      <p class="note">รวบรวมจากเว็บไกด์หลายเว็บ ยังไม่มีพิกัด ติ๊กเมื่อไปแล้ว หรือกด "ปักบนแผนที่" แล้วแตะจุดนั้นบนแผนที่ของคุณ · <span id="spotCount"></span></p>
+      <p class="note">รวบรวมจากเว็บไกด์หลายเว็บ ยังไม่มีพิกัด ติ๊กเมื่อไปแล้ว หรือกด "ปักหมุด" แล้วแตะจุดนั้นบนแผนที่ · <span id="spotCount"></span></p>
     </div>
     <input class="search" id="spotSearch" type="search" placeholder="ค้นหา เช่น Key Lento, Belpoint, รหัส" aria-label="ค้นหาจุด">
     <div class="chips" id="spotChips"></div>
     <div class="finds" id="refList"></div>
-
-    <div>
-      <h3>หมุดทั้งหมด</h3>
-    </div>
-    <div class="finds" id="pinList"></div>
   </section>
 
   <!-- MAP & PEOPLE -->
@@ -509,22 +560,35 @@ footer { color: var(--muted); font-size: 12px; padding-top: 24px; border-top: 1p
 
 
   // ---------- pin map ----------
-  const PIN_TYPES = [
-    { id: "collect", name: "ของสะสม" },
-    { id: "special", name: "จุดพิเศษ/อีสเตอร์เอ้ก" },
-    { id: "shop", name: "ตู้เซฟ/อาวุธ/รถ/ร้าน" },
+  // Map layers (pin categories). `cat` links a layer to a tracker counter.
+  const LAYERS = [
+    { id: "flamingo", name: "Cocaine Flamingos", cat: "flamingo" },
+    { id: "cards", name: "การ์ดสะสม", cat: "cards" },
+    { id: "meteor", name: "Meteorites", cat: "meteor" },
+    { id: "waink", name: "WAiNK Scans", cat: "waink" },
+    { id: "underwater", name: "Underwater", cat: "underwater" },
+    { id: "collect", name: "ของสะสมอื่น" },
+    { id: "safes", name: "ตู้เซฟ/อาวุธ/รถ", cat: "safes" },
+    { id: "special", name: "ของลับ/อีสเตอร์เอ้ก" },
     { id: "mission", name: "ภารกิจ" },
     { id: "other", name: "อื่นๆ" },
   ];
+  // Pins saved by the earlier version used type+cat; map them onto layers.
+  function layerOf(p) {
+    if (LAYERS.some(l => l.id === p.type)) return p.type;
+    if (p.type === "collect") return LAYERS.some(l => l.id === p.cat) ? p.cat : "collect";
+    if (p.type === "shop") return "safes";
+    return "other";
+  }
   // Spot catalog: compiled from guide-site search results in launch week (22 Nov 2026).
   // No coordinates; descriptions rewritten in Thai. `warn` marks spots where sources disagree.
   const SPOT_GROUPS = [
-    { id: "flamingo", name: "Cocaine Flamingos", type: "collect", cat: "flamingo" },
-    { id: "card", name: "การ์ดสะสม", type: "collect", cat: "cards" },
-    { id: "meteor", name: "Meteorite Chunks", type: "collect", cat: "meteor" },
-    { id: "landmark", name: "WAiNK Landmarks", type: "collect", cat: "waink" },
-    { id: "curio", name: "WAiNK Curiosities", type: "collect", cat: "waink" },
-    { id: "safe", name: "ตู้เซฟ & รหัส", type: "shop", cat: "safes" },
+    { id: "flamingo", name: "Cocaine Flamingos", type: "flamingo" },
+    { id: "card", name: "การ์ดสะสม", type: "cards" },
+    { id: "meteor", name: "Meteorite Chunks", type: "meteor" },
+    { id: "landmark", name: "WAiNK Landmarks", type: "waink" },
+    { id: "curio", name: "WAiNK Curiosities", type: "waink" },
+    { id: "safe", name: "ตู้เซฟ & รหัส", type: "safes" },
     { id: "special", name: "ของลับ/อีสเตอร์เอ้ก", type: "special" },
     { id: "side", name: "ภารกิจเสริม", type: "mission" },
   ];
@@ -599,189 +663,201 @@ footer { color: var(--muted); font-size: 12px; padding-top: 24px; border-top: 1p
     { id: "sd3", g: "side", name: "นิตยสารในบ้าน Jason (Chapter 1)", area: "บ้าน Jason", where: "บนโต๊ะข้างเตียง บางเว็บว่าเข้าไม่ได้อีกหลังจบ Chapter 1", src: "PowerPyx", warn: "บางเว็บบอกว่าไม่มีของที่พลาดแล้วพลาดเลย" },
   ];
 
-  const typeName = id => (PIN_TYPES.find(t => t.id === id) || PIN_TYPES[4]).name;
-  const vp = document.getElementById("viewport"), stage = document.getElementById("stage");
-  const pinLayer = document.getElementById("pinLayer"), mapImg = document.getElementById("mapImg");
-  const schematic = document.getElementById("schematic"), mapState = document.getElementById("mapState");
-  const placeHint = document.getElementById("placeHint"), pinForm = document.getElementById("pinForm");
-  const pinDetail = document.getElementById("pinDetail");
-  const pType = document.getElementById("pType"), pCat = document.getElementById("pCat");
-  PIN_TYPES.forEach(t => pType.add(new Option(t.name, t.id)));
-  pCat.add(new Option("ไม่ระบุหมวด", "")); CATS.forEach(c => pCat.add(new Option(c.name, c.id)));
-  pType.onchange = () => { pCat.hidden = pType.value !== "collect"; };
+  // ----- Leaflet map -----
+  const $ = id => document.getElementById(id);
+  const mapState = $("mapState"), placeHint = $("placeHint"), pinForm = $("pinForm"), pType = $("pType");
+  LAYERS.forEach(l => pType.add(new Option(l.name, l.id)));
+  const PIN_SVG = '<svg viewBox="0 0 28 28" aria-hidden="true"><path class="body" d="M14 27C14 27 4 17 4 10.5A10 10 0 0 1 24 10.5C24 17 14 27 14 27Z"/><circle class="dot" cx="14" cy="10.5" r="3.6"/></svg>';
 
-  let view = { s: 1, x: 0, y: 0 };
-  let placing = null;   // {prefill} while waiting for a tap
-  let pending = null;   // {x, y, prefill} while the form is open
-  let selected = null;
-  const hiddenTypes = new Set();
+  let map = null, bg = null, W = 400, H = 500, bgUrl = null;
+  let placing = null, pending = null, pendingMarker = null;
+  const groups = {}, markers = new Map();
+  const hiddenLayers = new Set(); let hideFound = false;
 
-  function applyView() {
-    const W = vp.clientWidth, H = vp.clientHeight;
-    view.s = Math.min(6, Math.max(1, view.s));
-    view.x = Math.min(0, Math.max(W - W * view.s, view.x));
-    view.y = Math.min(0, Math.max(H - H * view.s, view.y));
-    stage.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.s})`;
-    pinLayer.querySelectorAll(".pin").forEach(p => p.style.transform = `scale(${1 / view.s})`);
-  }
-  function zoomAt(cx, cy, factor) {
-    const r = vp.getBoundingClientRect(), px = cx - r.left, py = cy - r.top;
-    const ns = Math.min(6, Math.max(1, view.s * factor)), k = ns / view.s;
-    view.x = px - (px - view.x) * k; view.y = py - (py - view.y) * k; view.s = ns; applyView();
-  }
-  const toMap = (cx, cy) => {
-    const r = vp.getBoundingClientRect();
-    return { x: (cx - r.left - view.x) / (vp.clientWidth * view.s), y: (cy - r.top - view.y) / (vp.clientHeight * view.s) };
-  };
+  const toLL = p => [(1 - p.y) * H, p.x * W];
+  const fromLL = ll => ({ x: ll.lng / W, y: 1 - ll.lat / H });
+  const bounds = () => L.latLngBounds([0, 0], [H, W]);
 
-  // pointer pan / pinch / tap
-  const pts = new Map(); let moved = false, last = null, pinchD = 0;
-  vp.addEventListener("pointerdown", e => {
-    if (e.target.closest(".pin")) return;
-    vp.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    moved = false; last = { x: e.clientX, y: e.clientY };
-    if (pts.size === 2) { const [a, b] = [...pts.values()]; pinchD = Math.hypot(a.x - b.x, a.y - b.y); }
-  });
-  vp.addEventListener("pointermove", e => {
-    if (!pts.has(e.pointerId)) return;
-    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pts.size === 2) {
-      const [a, b] = [...pts.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
-      if (pinchD) zoomAt((a.x + b.x) / 2, (a.y + b.y) / 2, d / pinchD);
-      pinchD = d; moved = true; return;
-    }
-    const dx = e.clientX - last.x, dy = e.clientY - last.y;
-    if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
-    if (moved) { view.x += dx; view.y += dy; applyView(); }
-    last = { x: e.clientX, y: e.clientY };
-  });
-  const up = e => {
-    if (!pts.has(e.pointerId)) return;
-    pts.delete(e.pointerId); pinchD = 0;
-    if (!moved && pts.size === 0 && placing) {
-      const m = toMap(e.clientX, e.clientY);
+  function ensureMap() {
+    if (map) { map.invalidateSize(); return true; }
+    if (!window.L) { $("mapFail").hidden = false; return false; }
+    map = L.map("lmap", { crs: L.CRS.Simple, minZoom: -3, maxZoom: 4, zoomSnap: 0.25, zoomDelta: 0.5,
+                          attributionControl: false, maxBoundsViscosity: 0.8 });
+    LAYERS.forEach(l => { groups[l.id] = L.layerGroup().addTo(map); });
+    map.on("click", e => {
+      if (!placing) return;
+      const m = fromLL(e.latlng);
       if (m.x >= 0 && m.x <= 1 && m.y >= 0 && m.y <= 1) openPinForm(m, placing.prefill);
-    }
-    if (pts.size === 1) last = [...pts.values()][0];
-  };
-  vp.addEventListener("pointerup", up); vp.addEventListener("pointercancel", up);
-  vp.addEventListener("wheel", e => { e.preventDefault(); zoomAt(e.clientX, e.clientY, e.deltaY < 0 ? 1.2 : 1 / 1.2); }, { passive: false });
-  vp.addEventListener("keydown", e => {
-    const r = vp.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-    if (e.key === "+" || e.key === "=") zoomAt(cx, cy, 1.25);
-    else if (e.key === "-") zoomAt(cx, cy, 0.8);
-    else if (e.key.startsWith("Arrow")) {
-      const step = 40; view.x += e.key === "ArrowLeft" ? step : e.key === "ArrowRight" ? -step : 0;
-      view.y += e.key === "ArrowUp" ? step : e.key === "ArrowDown" ? -step : 0; applyView();
-    } else return;
-    e.preventDefault();
-  });
-  window.addEventListener("resize", applyView);
-  document.getElementById("resetView").onclick = () => { view = { s: 1, x: 0, y: 0 }; applyView(); };
-
-  function startPlacing(prefill) {
-    placing = { prefill: prefill || null }; pinForm.hidden = true; pinDetail.hidden = true;
-    placeHint.hidden = false; vp.classList.add("placing");
-    vp.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }
-  function stopPlacing() { placing = null; placeHint.hidden = true; vp.classList.remove("placing"); }
-  document.getElementById("addPinBtn").onclick = () => startPlacing(null);
-  document.getElementById("cancelPlace").onclick = stopPlacing;
-
-  function openPinForm(m, prefill) {
-    stopPlacing(); pending = { x: m.x, y: m.y };
-    document.getElementById("pName").value = prefill ? prefill.name : "";
-    document.getElementById("pNote").value = prefill ? prefill.where + " (ที่มา: " + prefill.src + ")" : "";
-    pType.value = prefill ? prefill.type : "collect"; pCat.value = prefill ? prefill.cat : "";
-    pCat.hidden = pType.value !== "collect";
-    pinForm.hidden = false; document.getElementById("pName").focus();
-    drawPins(); // show a ghost of the pending spot
-  }
-  document.getElementById("pinCancel").onclick = () => { pending = null; pinForm.hidden = true; drawPins(); };
-  pinForm.addEventListener("submit", e => {
-    e.preventDefault(); if (!pending) return;
-    const name = document.getElementById("pName").value.trim(); if (!name) return;
-    const pin = { id: Date.now().toString(36), x: +pending.x.toFixed(4), y: +pending.y.toFixed(4), name,
-                  type: pType.value, cat: pType.value === "collect" ? pCat.value : "",
-                  note: document.getElementById("pNote").value.trim(), found: false };
-    state.pins = (state.pins || []).concat(pin).slice(-1000);
-    pending = null; pinForm.hidden = true; selected = pin.id; save(); renderPins();
-  });
-
-  function pinSvg() {
-    return '<svg viewBox="0 0 28 28" aria-hidden="true"><path class="body" d="M14 27C14 27 4 17 4 10.5A10 10 0 0 1 24 10.5C24 17 14 27 14 27Z"/><circle class="dot" cx="14" cy="10.5" r="3.6"/></svg>';
-  }
-  function drawPins() {
-    pinLayer.innerHTML = "";
-    const list = (state.pins || []).filter(p => !hiddenTypes.has(p.type));
-    if (pending) list.push({ id: "_pending", x: pending.x, y: pending.y, name: "หมุดใหม่", type: "special" });
-    list.forEach(p => {
-      const b = document.createElement("button"); b.type = "button";
-      b.className = `pin t-${p.type}` + (p.found ? " found" : "") + (p.id === selected ? " sel" : "");
-      b.style.left = p.x * 100 + "%"; b.style.top = p.y * 100 + "%"; b.style.transform = `scale(${1 / view.s})`;
-      b.setAttribute("aria-label", p.name); b.title = p.name; b.innerHTML = pinSvg();
-      if (p.id !== "_pending") b.onclick = ev => { ev.stopPropagation(); selectPin(p.id); };
-      pinLayer.appendChild(b);
     });
+    setBackground(bgUrl);
+    return true;
   }
-  function selectPin(id) {
-    selected = id; const p = (state.pins || []).find(x => x.id === id);
-    if (!p) { pinDetail.hidden = true; drawPins(); return; }
-    pinDetail.hidden = false; pinDetail.innerHTML = "";
-    const h = document.createElement("h3"); h.textContent = p.name;
-    const meta = document.createElement("div"); meta.className = "note";
-    meta.textContent = [typeName(p.type), p.cat && catName(p.cat), p.note].filter(Boolean).join(" · ");
-    const row = document.createElement("div"); row.className = "row";
-    const fb = document.createElement("button"); fb.className = "btn"; fb.type = "button";
+
+  function setBackground(url) {
+    bgUrl = url;
+    if (!map) return;
+    const apply = () => {
+      if (bg) map.removeLayer(bg);
+      if (url) bg = L.imageOverlay(url, bounds()).addTo(map);
+      else {
+        const svg = $("schematicTpl").content.firstElementChild.cloneNode(true);
+        bg = L.svgOverlay(svg, bounds()).addTo(map);
+      }
+      bg.bringToBack();
+      map.setMaxBounds(bounds().pad(0.25));
+      map.fitBounds(bounds());
+      map.setMinZoom(map.getZoom() - 1);
+      drawPins();
+    };
+    if (url) {
+      const img = new Image();
+      img.onload = () => { W = img.naturalWidth; H = img.naturalHeight; apply(); };
+      img.onerror = () => { mapState.textContent = "เปิดภาพแผนที่ไม่ได้"; url = null; bgUrl = null; W = 400; H = 500; apply(); };
+      img.src = url;
+    } else { W = 400; H = 500; apply(); }
+  }
+
+  function icon(layer, cls) {
+    return L.divIcon({ className: "lpin " + (cls || ""), html: PIN_SVG.replace("<svg", `<svg style="--lc:${colorOf(layer)}"`),
+                       iconSize: [28, 28], iconAnchor: [14, 27], popupAnchor: [0, -24] });
+  }
+  const colorOf = id => `var(--l-${(LAYERS.find(l => l.id === id) || LAYERS[LAYERS.length - 1]).id})`;
+
+  function popupFor(p) {
+    const el = document.createElement("div"); el.className = "pop";
+    const lay = LAYERS.find(l => l.id === layerOf(p));
+    el.innerHTML = '<span class="tag"><span class="ldot"></span><span></span></span><h3></h3><div class="note"></div><div class="row"></div>';
+    el.querySelector(".ldot").style.setProperty("--lc", colorOf(lay.id));
+    el.querySelector(".tag span:last-child").textContent = lay.name + (p.found ? " · เก็บแล้ว" : "");
+    el.querySelector("h3").textContent = p.name;
+    const note = el.querySelector(".note"); if (p.note) note.textContent = p.note; else note.remove();
+    const row = el.querySelector(".row");
+    const fb = document.createElement("button"); fb.type = "button"; fb.className = "btn";
     fb.textContent = p.found ? "ยังไม่ได้เก็บ" : "เก็บแล้ว ✓";
     fb.onclick = () => {
       p.found = !p.found;
-      const c = CATS.find(c => c.id === p.cat);   // keep the counter in step
+      const c = CATS.find(c => c.id === lay.cat);
       if (c) { const t = totalOf(c), n = countOf(c); state.counts[c.id] = p.found ? (t ? Math.min(t, n + 1) : n + 1) : Math.max(0, n - 1); }
-      save(); renderTracker(); renderPins(); selectPin(p.id);
+      save(); renderTracker(); renderPins(); reopen(p.id);
     };
-    const del = document.createElement("button"); del.className = "btn ghost"; del.type = "button"; del.textContent = "ลบหมุด";
+    const del = document.createElement("button"); del.type = "button"; del.className = "btn ghost"; del.textContent = "ลบ";
     del.onclick = () => {
-      if (del.dataset.confirm) { state.pins = state.pins.filter(x => x.id !== p.id); selected = null; pinDetail.hidden = true; save(); renderPins(); }
-      else { del.dataset.confirm = "1"; del.textContent = "กดอีกครั้งเพื่อยืนยัน"; }
+      if (!del.dataset.ok) { del.dataset.ok = "1"; del.textContent = "กดอีกครั้งเพื่อลบ"; return; }
+      state.pins = state.pins.filter(x => x.id !== p.id); map.closePopup(); save(); renderPins();
     };
-    row.append(fb, del); pinDetail.append(h, meta, row); drawPins();
+    row.append(fb, del);
+    return el;
   }
-  function focusPin(p) {
-    const W = vp.clientWidth, H = vp.clientHeight;
-    view.s = Math.max(view.s, 2.5); view.x = W / 2 - p.x * W * view.s; view.y = H / 2 - p.y * H * view.s; applyView();
-    vp.scrollIntoView({ block: "nearest", behavior: "smooth" }); selectPin(p.id);
-  }
-  function renderPinList() {
-    const box = document.getElementById("pinList"); box.innerHTML = "";
-    const pins = (state.pins || []);
-    if (!pins.length) {
-      const p = document.createElement("p"); p.className = "note";
-      p.textContent = "ยังไม่มีหมุด กด \"+ ปักหมุด\" แล้วแตะบนแผนที่ หรือเริ่มจากจุดอ้างอิงด้านบน";
-      box.appendChild(p); return;
-    }
-    pins.slice().reverse().forEach(p => {
-      const el = document.createElement("div"); el.className = "find";
-      el.innerHTML = '<div class="txt"><div class="t"><span class="swatch"></span><span class="nm"></span></div><div class="meta"></div></div><button type="button">ดูบนแผนที่</button>';
-      el.querySelector(".swatch").classList.add("t-" + p.type);
-      el.querySelector(".nm").textContent = (p.found ? "✓ " : "") + p.name;
-      el.querySelector(".meta").textContent = [typeName(p.type), p.cat && catName(p.cat), p.note].filter(Boolean).join(" · ");
-      el.querySelector("button").onclick = () => focusPin(p);
-      box.appendChild(el);
+  function reopen(id) { const m = markers.get(id); if (m && map.hasLayer(m)) m.openPopup(); }
+
+  function drawPins() {
+    if (!map) return;
+    Object.values(groups).forEach(g => g.clearLayers()); markers.clear();
+    (state.pins || []).forEach(p => {
+      const layer = layerOf(p);
+      if (hiddenLayers.has(layer) || (hideFound && p.found)) return;
+      const m = L.marker(toLL(p), { icon: icon(layer, p.found ? "found" : ""), title: p.name, alt: p.name, riseOnHover: true })
+        .bindPopup(() => popupFor(p), { maxWidth: 280 });
+      m.addTo(groups[layer] || groups.other); markers.set(p.id, m);
     });
+    if (pendingMarker) { map.removeLayer(pendingMarker); pendingMarker = null; }
+    if (pending) pendingMarker = L.marker(toLL(pending), { icon: icon(pType.value, "pending"), interactive: false }).addTo(map);
   }
-  function renderFilters() {
-    const box = document.getElementById("pinFilters"); box.innerHTML = "";
-    PIN_TYPES.forEach(t => {
-      const n = (state.pins || []).filter(p => p.type === t.id).length;
-      const b = document.createElement("button"); b.type = "button"; b.className = "chip";
-      b.setAttribute("aria-pressed", !hiddenTypes.has(t.id));
-      b.innerHTML = '<span class="swatch"></span>'; b.firstChild.classList.add("t-" + t.id);
-      b.append(`${t.name} (${n})`);
-      b.onclick = () => { hiddenTypes.has(t.id) ? hiddenTypes.delete(t.id) : hiddenTypes.add(t.id); renderPins(); };
+
+  function renderLayers() {
+    const box = $("layerList"); box.innerHTML = "";
+    const pins = state.pins || [];
+    LAYERS.forEach(l => {
+      const mine = pins.filter(p => layerOf(p) === l.id);
+      const row = document.createElement("label"); row.className = "lrow";
+      row.innerHTML = '<input type="checkbox"><span class="ldot"></span><span class="nm"></span><span class="ct"></span>';
+      const cb = row.querySelector("input"); cb.id = "layer-" + l.id; cb.checked = !hiddenLayers.has(l.id);
+      cb.onchange = () => { cb.checked ? hiddenLayers.delete(l.id) : hiddenLayers.add(l.id); drawPins(); };
+      row.querySelector(".ldot").style.setProperty("--lc", colorOf(l.id));
+      row.querySelector(".nm").textContent = l.name;
+      row.querySelector(".ct").textContent = mine.length ? `${mine.filter(p => p.found).length}/${mine.length}` : "0";
+      box.appendChild(row);
+    });
+    $("layerStat").textContent = `${pins.length} หมุด · เก็บแล้ว ${pins.filter(p => p.found).length}`;
+  }
+  $("layersAll").onclick = () => { hiddenLayers.clear(); renderLayers(); drawPins(); };
+  $("layersNone").onclick = () => { LAYERS.forEach(l => hiddenLayers.add(l.id)); renderLayers(); drawPins(); };
+  $("hideFound").onchange = e => { hideFound = e.target.checked; drawPins(); };
+
+  $("pinSearch").addEventListener("input", e => {
+    const q = e.target.value.trim().toLowerCase(), box = $("pinResults"); box.innerHTML = "";
+    if (!q) { box.hidden = true; return; }
+    const hits = (state.pins || []).filter(p => (p.name + " " + (p.note || "")).toLowerCase().includes(q)).slice(0, 8);
+    box.hidden = false;
+    if (!hits.length) { const d = document.createElement("div"); d.className = "note"; d.style.padding = "8px 10px"; d.textContent = "ไม่พบหมุด"; box.appendChild(d); return; }
+    hits.forEach(p => {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = p.name;
+      b.onclick = () => {
+        hiddenLayers.delete(layerOf(p)); if (p.found) { hideFound = false; $("hideFound").checked = false; }
+        renderLayers(); drawPins(); map.flyTo(toLL(p), Math.max(map.getZoom(), map.getMinZoom() + 2.5), { duration: 0.6 });
+        setTimeout(() => reopen(p.id), 650);
+        $("lmap").scrollIntoView({ block: "nearest", behavior: "smooth" });
+      };
       box.appendChild(b);
     });
+  });
+
+  function startPlacing(prefill) {
+    if (!ensureMap()) return;
+    placing = { prefill: prefill || null }; pinForm.hidden = true; pending = null; drawPins();
+    placeHint.hidden = false; $("lmap").classList.add("placing");
+    if (document.getElementById("pins").hidden) showTab("pins");
+    $("lmap").scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
+  function stopPlacing() { placing = null; placeHint.hidden = true; $("lmap").classList.remove("placing"); }
+  $("addPinBtn").onclick = () => startPlacing(null);
+  $("cancelPlace").onclick = stopPlacing;
+
+  function openPinForm(m, prefill) {
+    stopPlacing(); pending = { x: m.x, y: m.y };
+    $("pName").value = prefill ? prefill.name : "";
+    $("pNote").value = prefill ? prefill.where + " (ที่มา: " + prefill.src + ")" : "";
+    pType.value = prefill ? prefill.type : "flamingo";
+    pinForm.hidden = false; drawPins();
+    pinForm.scrollIntoView({ block: "nearest", behavior: "smooth" }); $("pName").focus({ preventScroll: true });
+  }
+  pType.onchange = drawPins;
+  $("pinCancel").onclick = () => { pending = null; pinForm.hidden = true; drawPins(); };
+  pinForm.addEventListener("submit", e => {
+    e.preventDefault(); if (!pending) return;
+    const name = $("pName").value.trim(); if (!name) return;
+    const pin = { id: Date.now().toString(36), x: +pending.x.toFixed(5), y: +pending.y.toFixed(5), name,
+                  type: pType.value, note: $("pNote").value.trim(), found: false };
+    state.pins = (state.pins || []).concat(pin).slice(-2000);
+    pending = null; pinForm.hidden = true; save(); renderPins(); hiddenLayers.delete(pin.type); reopen(pin.id);
+  });
+
+  function renderPins() { renderLayers(); drawPins(); }
+
+  // share / import
+  $("shareBtn").onclick = () => { $("shareBox").hidden = !$("shareBox").hidden; };
+  $("copyPins").onclick = () => {
+    const text = JSON.stringify({ app: "leonida-pins", v: 1, pins: (state.pins || []).map(({ found, ...p }) => p) });
+    $("shareText").value = text;
+    navigator.clipboard.writeText(text).then(() => { $("shareState").textContent = "คัดลอกแล้ว"; })
+      .catch(() => { $("shareText").select(); $("shareState").textContent = "เลือกข้อความไว้แล้ว กดคัดลอกเอง"; });
+  };
+  $("importPins").onclick = () => {
+    let data; try { data = JSON.parse($("shareText").value); } catch { $("shareState").textContent = "ข้อมูลไม่ถูกต้อง วางข้อความที่คัดลอกมาทั้งหมด"; return; }
+    const incoming = (data && Array.isArray(data.pins)) ? data.pins : [];
+    const have = new Set((state.pins || []).map(p => p.id + "|" + p.x + "|" + p.y));
+    let added = 0;
+    incoming.forEach(p => {
+      if (typeof p.x !== "number" || typeof p.y !== "number" || !p.name) return;
+      if (have.has(p.id + "|" + p.x + "|" + p.y)) return;
+      state.pins.push({ id: Date.now().toString(36) + added, x: Math.min(1, Math.max(0, p.x)), y: Math.min(1, Math.max(0, p.y)),
+                        name: String(p.name).slice(0, 120), type: LAYERS.some(l => l.id === p.type) ? p.type : layerOf(p),
+                        note: String(p.note || "").slice(0, 300), found: false });
+      added++;
+    });
+    save(); renderPins(); $("shareState").textContent = `นำเข้า ${added} หมุด`;
+  };
+
   let spotGroup = "all", spotQuery = "";
   function renderRefs() {
     const chips = document.getElementById("spotChips"); chips.innerHTML = "";
@@ -813,45 +889,39 @@ footer { color: var(--muted); font-size: 12px; padding-top: 24px; border-top: 1p
         el.querySelector(".t").textContent = r.name;
         el.querySelector(".meta").textContent = `${r.area} · ${r.where} · ที่มา: ${r.src}`;
         const w = el.querySelector(".warn"); if (r.warn) w.textContent = "⚠ " + r.warn; else w.remove();
-        el.querySelector("button").onclick = () => startPlacing({ name: r.name, where: r.area + ": " + r.where, src: r.src, type: g.type, cat: g.cat || "" });
+        el.querySelector("button").onclick = () => startPlacing({ name: r.name, where: r.area + ": " + r.where, src: r.src, type: g.type });
         box.appendChild(el);
       });
     });
   }
   document.getElementById("spotSearch").addEventListener("input", e => { spotQuery = e.target.value; renderRefs(); });
-  function renderPins() { drawPins(); renderFilters(); renderPinList(); }
 
   // map image: uploaded to the artifact's asset store when allowed, else this session only
   let assets = null;
-  function showMap(url) {
-    mapImg.onload = () => {
-      const ar = mapImg.naturalWidth / mapImg.naturalHeight || 0.8;
-      vp.style.aspectRatio = `${mapImg.naturalWidth} / ${mapImg.naturalHeight}`;
-      mapImg.hidden = false; schematic.hidden = true; applyView();
-    };
-    mapImg.src = url;
-  }
   function loadMapImage() {
-    if (state.mapImg) { showMap("/_blob/" + state.mapImg); document.getElementById("mapFileLabel").textContent = "เปลี่ยนภาพแผนที่"; }
+    if (state.mapImg) { setBackground("/_blob/" + state.mapImg); $("mapFileLabel").textContent = "เปลี่ยนภาพแผนที่"; }
   }
-  document.getElementById("mapFile").addEventListener("change", async e => {
+  $("mapFile").addEventListener("change", async e => {
     const f = e.target.files && e.target.files[0]; e.target.value = ""; if (!f) return;
+    ensureMap();
     if (assets) {
       mapState.textContent = "กำลังอัปโหลด…";
       try {
         const res = await assets.upload(f);
-        state.mapImg = res.id; save(); showMap(res.url || "/_blob/" + res.id);
-        mapState.textContent = "บันทึกภาพแผนที่แล้ว";
-        document.getElementById("mapFileLabel").textContent = "เปลี่ยนภาพแผนที่";
+        state.mapImg = res.id; save(); setBackground(res.url || "/_blob/" + res.id);
+        mapState.textContent = "บันทึกภาพแผนที่แล้ว"; $("mapFileLabel").textContent = "เปลี่ยนภาพแผนที่";
         return;
       } catch { mapState.textContent = "อัปโหลดไม่สำเร็จ ใช้ภาพแค่ครั้งนี้"; }
     } else mapState.textContent = "ภาพนี้ใช้ได้จนปิดหน้า (เปิดใน claude.ai เพื่อบันทึก)";
-    showMap(URL.createObjectURL(f));
+    setBackground(URL.createObjectURL(f));
   });
   (async () => { if (window.claude) assets = await claude.use("assets"); })();
 
-  renderRefs(); renderPins(); loadMapImage();
-  document.getElementById("tab-pins").addEventListener("click", () => requestAnimationFrame(applyView));
+  renderRefs(); renderLayers(); loadMapImage();
+  const mapTabShown = () => requestAnimationFrame(() => { if (ensureMap()) drawPins(); });
+  $("tab-pins").addEventListener("click", mapTabShown);
+  if (!$("pins").hidden) mapTabShown();
+  window.addEventListener("hashchange", () => { if (location.hash === "#pins") mapTabShown(); });
 
   // Cloud sync: private per-player doc under data/users/<id>/
   (async () => {
