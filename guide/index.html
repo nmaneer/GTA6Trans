@@ -342,7 +342,7 @@ footer { color: var(--muted); font-size: 12px; padding-top: 24px; border-top: 1p
 
     <div>
       <h3>สารบัญจุดจากเว็บไกด์</h3>
-      <p class="note">รวบรวมจากเว็บไกด์หลายเว็บ ยังไม่มีพิกัด ติ๊กเมื่อไปแล้ว หรือกด "ปักหมุด" แล้วแตะจุดนั้นบนแผนที่ · <span id="spotCount"></span></p>
+      <p class="note">รวบรวมจากเว็บไกด์หลายเว็บ ยังไม่มีพิกัด ติ๊กเมื่อไปแล้ว หรือกด "ปักหมุด" แล้วแตะจุดนั้นบนแผนที่ · <span id="spotCount"></span> · <span id="dbState"></span></p>
     </div>
     <input class="search" id="spotSearch" type="search" placeholder="ค้นหา เช่น Key Lento, Belpoint, รหัส" aria-label="ค้นหาจุด">
     <div class="chips" id="spotChips"></div>
@@ -419,24 +419,8 @@ footer { color: var(--muted); font-size: 12px; padding-top: 24px; border-top: 1p
     { id: "ambro", name: "Ambrosia", kind: "ชนบท/อุตสาหกรรม", desc: "เมืองโรงงานและพื้นที่ไร่นา มีเหมืองทอง" },
     { id: "kalaga", name: "Mount Kalaga", kind: "อุทยาน", desc: "Mount Kalaga National Park ป่าเขาและธรรมชาติ" },
   ];
-  // 100% checklist (need of total) as reported by several guide sites in launch week.
-  const CATS = [
-    { id: "flamingo", name: "Cocaine Flamingos", total: 125, need: 100, desc: "ยิงนกฟลามิงโกปากขาวดำให้ห่อโคเคนหล่น ไม่ขึ้นบนแผนที่ ดูยอดได้ที่ Progress > Collections > Exploration" },
-    { id: "cards", name: "Collectible Cards (ชุด)", total: 18, need: 15, desc: "480 ใบใน 18 ชุด นับเฉพาะชุดที่ครบ ตัวนับนี้นับเป็นจำนวนชุด" },
-    { id: "waink", name: "WAiNK Scans", total: 0, need: 100, desc: "สแกนด้วยแอป WAiNK: Landmarks 31, Curiosities 35, Sculptures 23 และแท็ก No Flusher รวมกันให้ได้ 100" },
-    { id: "underwater", name: "Underwater Discoveries", total: 33, need: 33, desc: "หมวดเดียวที่ต้องเก็บครบทุกชิ้น" },
-    { id: "mags", name: "Magazines, Books & Comics", total: 34, need: 30, desc: "หนังสือ 27 เล่ม และหนังสือแลกเปลี่ยน 7 เล่ม" },
-    { id: "meditate", name: "Meditation Spots", total: 18, need: 15, desc: "จุดนั่งสมาธิ" },
-    { id: "kenton", name: "Kenton Treasure Sets", total: 7, need: 5, desc: "ดำน้ำหาสมบัติกับ Kenton ได้เงินสดด้วย" },
-    { id: "styles", name: "Discovered Styles", total: 79, need: 70, desc: "สไตล์การแต่งตัว" },
-    { id: "playlists", name: "Unique Playlists", total: 2, need: 2, desc: "เพลย์ลิสต์พิเศษ" },
-    { id: "vehicles", name: "รถรุ่นพื้นฐาน", total: 277, need: 200, desc: "ค้นพบรถ" },
-    { id: "weapons", name: "อาวุธมาตรฐาน", total: 66, need: 50, desc: "ค้นพบอาวุธ" },
-    { id: "animals", name: "สัตว์", total: 255, need: 100, desc: "ค้นพบสัตว์" },
-    { id: "stunts", name: "Stunts", total: 397, need: 300, desc: "ตัวเลขยังขัดกัน บางเว็บบอก 130 แก้ยอดเองได้" },
-    { id: "meteor", name: "Meteorite Chunks", total: 36, need: 0, desc: "ไม่อยู่ในเงื่อนไข 100% GTABase นับ 36 อีกเว็บนับ 21 เรืองแสงตอนกลางคืน" },
-    { id: "safes", name: "ตู้เซฟ", total: 59, need: 0, desc: "ไม่อยู่ในเงื่อนไข 100% GTABase นับ 59 ได้เงินสด" },
-  ];
+  // Checklist, spot groups and spots come from the database (see loadData); data/seed.json is the seed and offline fallback.
+  let CATS = [];
   const regionName = id => (REGIONS.find(r => r.id === id) || {}).name || "ไม่ระบุ";
   const catName = id => (CATS.find(c => c.id === id) || {}).name || "อื่นๆ";
 
@@ -526,8 +510,12 @@ footer { color: var(--muted); font-size: 12px; padding-top: 24px; border-top: 1p
   }
 
   const fCat = document.getElementById("fCat"), fRegion = document.getElementById("fRegion");
-  CATS.forEach(c => fCat.add(new Option(c.name, c.id)));
-  fCat.add(new Option("อื่นๆ", "other"));
+  function fillCatSelect() {
+    fCat.length = 0;
+    CATS.forEach(c => fCat.add(new Option(c.name, c.id)));
+    fCat.add(new Option("อื่นๆ", "other"));
+  }
+  fillCatSelect();
   REGIONS.forEach(r => fRegion.add(new Option(r.name, r.id)));
   fRegion.add(new Option("ไม่แน่ใจ", "unknown"));
 
@@ -580,88 +568,8 @@ footer { color: var(--muted); font-size: 12px; padding-top: 24px; border-top: 1p
     if (p.type === "shop") return "safes";
     return "other";
   }
-  // Spot catalog: compiled from guide-site search results in launch week (22 Nov 2026).
-  // No coordinates; descriptions rewritten in Thai. `warn` marks spots where sources disagree.
-  const SPOT_GROUPS = [
-    { id: "flamingo", name: "Cocaine Flamingos", type: "flamingo" },
-    { id: "card", name: "การ์ดสะสม", type: "cards" },
-    { id: "meteor", name: "Meteorite Chunks", type: "meteor" },
-    { id: "landmark", name: "WAiNK Landmarks", type: "waink" },
-    { id: "curio", name: "WAiNK Curiosities", type: "waink" },
-    { id: "safe", name: "ตู้เซฟ & รหัส", type: "safes" },
-    { id: "special", name: "ของลับ/อีสเตอร์เอ้ก", type: "special" },
-    { id: "side", name: "ภารกิจเสริม", type: "mission" },
-  ];
-  const SPOTS = [
-    // Cocaine Flamingos
-    { id: "fl1", g: "flamingo", name: "กลุ่มฟลามิงโก 6 ตัว Belpoint", area: "Belpoint, Mariana County", where: "ฝั่งตะวันออกเฉียงใต้: แถวท่าเรือ บ้านที่ถูกเผา ตู้คอนเทนเนอร์บนชายหาด และตู้สีเหลืองในน้ำ ไปรอบเดียวเก็บได้หลายตัว", src: "PowerPyx / Magic Game World" },
-    { id: "fl2", g: "flamingo", name: "ฟลามิงโก โมเทล Watson Bay", area: "Watson Bay", where: "มุมตะวันตกเฉียงใต้ของโมเทลฝั่งตะวันออก ข้างถังขยะ", src: "Magic Game World" },
-    { id: "fl3", g: "flamingo", name: "ฟลามิงโก La Perle", area: "La Perle, Vice City", where: "ชั้นล่าง กลางอาคารรูปตัว C ทางตะวันตกเฉียงเหนือของอพาร์ตเมนต์ Tyrone", src: "Magic Game World" },
-    { id: "fl4", g: "flamingo", name: "ฟลามิงโก บ้านแปลก Key Lento", area: "Key Lento, Leonida Keys", where: "ในสวนของบ้านประหลาดกลางเกาะ Key Lento", src: "Magic Game World" },
-    { id: "fl5", g: "flamingo", name: "ฟลามิงโก ปลายเกาะเหนือ Featherstone", area: "Featherstone Islands", where: "จุดเหนือสุดของเกาะทางเหนือ", src: "Magic Game World" },
-    { id: "fl6", g: "flamingo", name: "ฟลามิงโก 3 ตัว ซากเรือ Meerwunder", area: "Featherstone Islands", where: "บนชายหาดใกล้ซากเรือสินค้าคว่ำ Wreck of the Meerwunder", src: "The Big Lead / Vice City DB" },
-    // Cards
-    { id: "cd1", g: "card", name: "Taylor Blanc", area: "Key Lento, Leonida Keys", where: "ในกล่องสีเหลืองหลัง Brian's Lockup", src: "GTABase" },
-    { id: "cd2", g: "card", name: "Drake (Gold)", area: "Ambrosia", where: "ในอาคารที่เหมืองทอง", src: "GTABase / The Big Lead" },
-    { id: "cd3", g: "card", name: "Remy Herbert (Silver) · Liberty City Penetrators", area: "ไม่ระบุ", where: "ห้องที่เข้าได้ ชั้น 2 ของอาคารทางตะวันออกของร้านจำนำ Fast Cash", src: "PowerPyx / Game8" },
-    { id: "cd4", g: "card", name: "Nikkander Orlov (Silver) · Los Santos Panic", area: "Watson Bay", where: "บนชั้นวางในที่มีหลังคาข้างบ้าน ขอบตะวันออกของ Watson Bay", src: "PowerPyx / Game8" },
-    { id: "cd5", g: "card", name: "Maximus Goldbart (Yellow) · Los Santos Pounders", area: "Waning Sands", where: "ในโรงรถของวิลล่าทางตะวันออกของ Pay 'n' Spray", src: "PowerPyx / Game8" },
-    { id: "cd6", g: "card", name: "Anthony Herndon (Bronze) · Vice City Flamingos", area: "Frogwater, Ambrosia", where: "บนโต๊ะในโรงรถข้าง Ambrosia Farmhouse", src: "PowerPyx / Game8" },
-    { id: "cd7", g: "card", name: "Monali$a (Silver)", area: "Featherstone Islands", where: "ใกล้ซากเรือ Wreck of the Meerwunder", src: "Vice City DB" },
-    // Meteorites
-    { id: "mt1", g: "meteor", name: "อุกกาบาต 5 ชิ้น Selkie Hole", area: "Kelly County", where: "ในอุโมงค์ใต้น้ำของ Selkie Hole ลงบันไดที่จุดดำน้ำฝั่งตะวันตกของ Emerald Springs", src: "VG Times / Vice City DB" },
-    { id: "mt2", g: "meteor", name: "อุกกาบาต ใต้ท่าเรือ Sandbars", area: "Sandbars", where: "ใต้ท่าเรือบนเกาะใหญ่ที่สุดทางเหนือสุด", src: "The Big Lead" },
-    { id: "mt3", g: "meteor", name: "อุกกาบาต ใต้ประภาคาร Leonida Bay", area: "Leonida Bay", where: "ใต้ประภาคารบนเกาะเล็ก", src: "The Big Lead" },
-    { id: "mt4", g: "meteor", name: "อุกกาบาต ซากเรือ Meerwunder", area: "Featherstone Islands", where: "ใกล้ซากเรือสินค้าคว่ำ", src: "Vice City DB" },
-    { id: "mt5", g: "meteor", name: "จุดตกอุกกาบาต Mount Kalaga", area: "Mount Kalaga, Lummox County", where: "แคมป์ที่พังบนภูเขา (เกี่ยวกับเนื้อเรื่อง ไม่ใช่ชิ้นสะสมปกติ)", src: "หลายเว็บ", warn: "แต่ละเว็บบอกตำแหน่งต่างกัน: ฝั่งตะวันออกของภูเขา หรือ Hillside Campsite ตะวันตกเฉียงใต้ของ Dawson Dam" },
-    // Landmarks
-    { id: "lm1", g: "landmark", name: "Belpoint Lighthouse (#17)", area: "Belpoint", where: "ประภาคาร Belpoint", src: "GTA Corner" },
-    { id: "lm2", g: "landmark", name: "รูปปั้น Visitor Center", area: "Grassrivers", where: "ศูนย์บริการนักท่องเที่ยว", src: "Pro-Gamer", warn: "บางเว็บจัดเป็น Sculpture" },
-    { id: "lm3", g: "landmark", name: "Badger R&D Tower", area: "Key Lento", where: "หอคอย Badger R&D", src: "Pro-Gamer" },
-    { id: "lm4", g: "landmark", name: "Wonder Whale", area: "Key Lento", where: "รูปวาฬยักษ์", src: "Pro-Gamer" },
-    { id: "lm5", g: "landmark", name: "Radome", area: "Riquezas Keys", where: "โดมเรดาร์", src: "Pro-Gamer" },
-    { id: "lm6", g: "landmark", name: "Halloween House", area: "Capri", where: "ทางใต้ของ Tortoise Lake", src: "Game-Checklists" },
-    { id: "lm7", g: "landmark", name: "Gellhorn Fun Fair", area: "Port Gellhorn", where: "สวนสนุก", src: "Pro-Gamer" },
-    { id: "lm8", g: "landmark", name: "Hoffman Observatory", area: "Port Gellhorn", where: "หอดูดาว", src: "Pro-Gamer" },
-    { id: "lm9", g: "landmark", name: "Sahara Arena", area: "Vice City", where: "สนามกีฬา", src: "Pro-Gamer" },
-    { id: "lm10", g: "landmark", name: "Dock Ring Ferris Wheel", area: "Vice City", where: "ชิงช้าสวรรค์", src: "Pro-Gamer" },
-    // Curiosities
-    { id: "cu1", g: "curio", name: "Christmas House", area: "Key Lento", where: "ถนน Sunset Dr", src: "GameSpot / Push Square" },
-    { id: "cu2", g: "curio", name: "Plunge Masters Deep Sea Chalet", area: "Key Lento", where: "ถัดไปตามถนน Sunset Dr", src: "GameSpot / Push Square" },
-    { id: "cu3", g: "curio", name: "Abismo Key Carcass", area: "Abismo Key, Leonida Keys", where: "ริมทางหลวงฝั่งใต้-ตะวันตกเฉียงใต้", src: "GameSpot / Push Square" },
-    { id: "cu4", g: "curio", name: "Derelict Spy Vessel", area: "Permit Keys", where: "บนชายหาดทางตะวันออกเฉียงใต้ ข้างในมีปืนพกพิเศษด้วย", src: "GameSpot / Push Square" },
-    { id: "cu5", g: "curio", name: "Beach Party Site", area: "Permit Keys", where: "ตอนกลางของ Permit Keys ตรวจดูจะเจอ Fingerpost", src: "GameSpot / Push Square" },
-    { id: "cu6", g: "curio", name: "Goose Key Carcass", area: "Goose Key", where: "ใกล้ Mile Zero Air Station (เขตทหาร ระวังโดนยิง)", src: "GameSpot / Push Square" },
-    { id: "cu7", g: "curio", name: "Desert Island Piano", area: "Grassrivers", where: "เกาะเล็กทางใต้ของ Cottonmouth Lake", src: "GameSpot / Push Square" },
-    { id: "cu8", g: "curio", name: "Dead Sharks", area: "Grassrivers", where: "เกาะใหญ่ทางตะวันตกของ Cottonmouth Lake", src: "GameSpot / Push Square" },
-    { id: "cu9", g: "curio", name: "NoFlusher Homestead", area: "Grassrivers", where: "เกาะรูปร่างแปลกทางตะวันตกของ Pelican Valley", src: "GameSpot / Push Square" },
-    { id: "cu10", g: "curio", name: "Vibrant Pond", area: "Longneck Trl", where: "หาป้ายเตือนห้ามว่ายน้ำบนถนน Longneck Trl", src: "GameSpot / Push Square" },
-    { id: "cu11", g: "curio", name: "Pet Cemetery (#35)", area: "Grayson", where: "ริมถนน SR-73 ทางใต้ของ Grayson", src: "GameSpot / Push Square" },
-    // Safes
-    { id: "sf1", g: "safe", name: "Kingpin Bowling · รหัส 0300", area: "Kingpin Bowling", where: "ตู้เซฟในออฟฟิศ (ภารกิจ Chapter 2)", src: "หลายเว็บ", warn: "GamesRadar บอก 0330" },
-    { id: "sf2", g: "safe", name: "Brooks Boatworks · รหัส 6823", area: "Brooks Boatworks", where: "รหัสอยู่บนแผนที่ติดผนังในอาคารเล็กสุดของคอมเพลกซ์", src: "หลายเว็บ" },
-    { id: "sf3", g: "safe", name: "รถพ่วงใกล้ Cottonmouth Lake · รหัส 44017", area: "Grassrivers", where: "ตัวเลขซ่อนในโปสการ์ดบนผนังรถพ่วง", src: "หลายเว็บ" },
-    { id: "sf4", g: "safe", name: "Janjak's Garage · รหัส 4444", area: "La Perle, Vice City", where: "โน้ตอยู่บนตู้เย็น ตู้เซฟอยู่ห้องติดกัน", src: "หลายเว็บ" },
-    { id: "sf5", g: "safe", name: "La Cascara Motel · รหัส 6969", area: "La Cascara Motel", where: "ตู้เซฟในโมเทล", src: "หลายเว็บ" },
-    { id: "sf6", g: "safe", name: "ฐานวิจัย Pelican Valley · รหัส 0072", area: "Pelican Valley", where: "ดูรหัสได้จากคอมพิวเตอร์ในฐาน", src: "หลายเว็บ" },
-    { id: "sf7", g: "safe", name: "ประตู Brian's Lockup · รหัส 7700", area: "Key Lento", where: "เอากระเป๋าของโจรมาฝากได้ จ่ายเงินทีหลังแต่ได้น้อยกว่ามูลค่านิดหน่อย", src: "หลายเว็บ" },
-    { id: "sf8", g: "safe", name: "Ocean Beach Liquor Store · ~$1,000", area: "Ocean Beach, Vice City", where: "งัดเข้าหลังร้าน ตู้เซฟในออฟฟิศ", src: "Outputlag" },
-    { id: "sf9", g: "safe", name: "ปั๊ม Southwind · ~$458", area: "Watson Bay", where: "ตู้เซฟเล็ก ปิดสัญญาณกันขโมยได้", src: "Outputlag" },
-    { id: "sf10", g: "safe", name: "Drip Drops · รหัส 4124", area: "ไม่ระบุ", where: "มี 2 ตู้ ราว $1,668 และ $2,286 ตู้ที่สองอยู่ฝั่งตรงข้ามถนน", src: "Outputlag" },
-    // Specials
-    { id: "sp1", g: "special", name: "รถสีเขียวในโรงรถวิลล่า", area: "Vespucci Island", where: "เข้าโรงรถวิลล่า ขึ้นรถแล้วต่อสายสตาร์ท", src: "Insider Gaming / TheClick", warn: "เว็บบอกรุ่นไม่ตรงกัน: Maibatsu Penumbra FF หรือรถคารวะ Paul Walker" },
-    { id: "sp2", g: "special", name: "อพาร์ตเมนต์ Dexter + เรือ", area: "Washington Island", where: "อพาร์ตเมนต์ และเรือ Lure Predator L35P จอดที่ท่าใกล้ๆ", src: "Insider Gaming" },
-    { id: "sp3", g: "special", name: "UFO", area: "ใกล้ Starlet Motel", where: "ทางตะวันตกเฉียงเหนือของโมเทล รถจอดข้างทางที่มีไฟกะพริบ บางครั้งโผล่หลังตี 2", src: "หลายเว็บ" },
-    { id: "sp4", g: "special", name: "Skunk Ape", area: "Grassrivers", where: "ในหนองน้ำทางใต้ของ Cottonmouth Lake", src: "หลายเว็บ" },
-    { id: "sp5", g: "special", name: "รังนกบนหอคอยสูงสุด", area: "ไม่แน่นอน", where: "ปีนบันไดถึงยอด มีไข่ในรัง ขว้างไข่แรงๆ จะมีคัตซีนลับ", src: "หลายเว็บ", warn: "ตำแหน่งขัดกัน: Vice City หรือ South Vice Dale County" },
-    { id: "sp6", g: "special", name: "ปืน Crabshack VF5 SMG", area: "Pelican Valley", where: "รางวัลจากฐานวิจัยปู ได้เงินและเจ็ตสกีด้วย", src: "หลายเว็บ" },
-    { id: "sp7", g: "special", name: "ปืนสไนเปอร์", area: "Watson Bay", where: "ในคอมพาวด์ เก็บได้ชั่วคราว รีบใส่ท้ายรถทันที", src: "หลายเว็บ" },
-    { id: "sp8", g: "special", name: "ปืนล่าสัตว์", area: "Wet Man Bay", where: "เกาะเล็กที่มีท่าเรือกับบ้าน", src: "หลายเว็บ" },
-    // Side activities
-    { id: "sd1", g: "side", name: "Find the Lost Drugs (9 ห่อ)", area: "4 พื้นที่", where: "Recreation Area 2 ห่อ (ห่อหนึ่งติดบนต้นไม้ริมหาด มีคนถือปืน 3 คน), Burned Houses 3, Pelican Valley 2, Thorpe Adventures 2", src: "MetaForge" },
-    { id: "sd2", g: "side", name: "Hit Kingpin Bowling (Chapter 2)", area: "Kingpin Bowling", where: "ภารกิจเสริม หยิบของ 3 ชิ้นระหว่างภารกิจ ตู้เซฟทิ้งไว้แล้วระเบิดเปิดทีหลังได้", src: "Game-Checklists" },
-    { id: "sd3", g: "side", name: "นิตยสารในบ้าน Jason (Chapter 1)", area: "บ้าน Jason", where: "บนโต๊ะข้างเตียง บางเว็บว่าเข้าไม่ได้อีกหลังจบ Chapter 1", src: "PowerPyx", warn: "บางเว็บบอกว่าไม่มีของที่พลาดแล้วพลาดเลย" },
-  ];
+  let SPOT_GROUPS = [];
+  let SPOTS = [];
 
   // ----- Leaflet map -----
   const $ = id => document.getElementById(id);
@@ -874,7 +782,7 @@ footer { color: var(--muted); font-size: 12px; padding-top: 24px; border-top: 1p
     const list = SPOTS.filter(x => (spotGroup === "all" || x.g === spotGroup) &&
       (!q || (x.name + " " + x.where + " " + x.area).toLowerCase().includes(q)));
     document.getElementById("spotCount").textContent = `ไปแล้ว ${SPOTS.filter(x => done[x.id]).length} จาก ${SPOTS.length} จุด`;
-    if (!list.length) { const p = document.createElement("p"); p.className = "note"; p.textContent = "ไม่พบจุดที่ตรงกับคำค้น"; box.appendChild(p); return; }
+    if (!list.length) { const p = document.createElement("p"); p.className = "note"; p.textContent = SPOTS.length ? "ไม่พบจุดที่ตรงกับคำค้น" : "รายการจุดจะขึ้นที่นี่เมื่อโหลดฐานข้อมูลเสร็จ"; box.appendChild(p); return; }
     SPOT_GROUPS.forEach(g => {
       const items = list.filter(x => x.g === g.id); if (!items.length) return;
       const h = document.createElement("div"); h.className = "label"; h.textContent = g.name; box.appendChild(h);
@@ -922,6 +830,39 @@ footer { color: var(--muted); font-size: 12px; padding-top: 24px; border-top: 1p
   $("tab-pins").addEventListener("click", mapTabShown);
   if (!$("pins").hidden) mapTabShown();
   window.addEventListener("hashchange", () => { if (location.hash === "#pins") mapTabShown(); });
+
+  // ---------- shared database: checklist, spot groups, spots ----------
+  const dbState = document.getElementById("dbState");
+  const byOrder = (a, b) => (a.order || 0) - (b.order || 0);
+  function applyData(d, label) {
+    CATS = (d.checklist || []).slice().sort(byOrder);
+    SPOT_GROUPS = (d.spotGroups || []).slice().sort(byOrder);
+    SPOTS = (d.spots || []).slice().sort(byOrder);
+    fillCatSelect(); renderTracker(); renderRefs(); renderLayers();
+    dbState.textContent = label;
+  }
+  async function loadSeedFile() {
+    const r = await fetch("data/seed.json"); if (!r.ok) throw new Error("seed " + r.status);
+    return r.json();
+  }
+  async function loadData() {
+    dbState.textContent = "กำลังโหลดฐานข้อมูล…";
+    let db = null;
+    try { if (window.claude) db = await claude.use("db"); } catch {}
+    if (db) {
+      try {
+        const read = async name => (await db.collection(name).limit(1000).get()).docs.map(d => Object.assign({ id: d.id }, d.data()));
+        const [checklist, spotGroups, spots] = await Promise.all(["checklist", "spotGroups", "spots"].map(read));
+        if (spots.length && checklist.length && spotGroups.length) {
+          applyData({ checklist, spotGroups, spots }, `ฐานข้อมูลกลาง · ${spots.length} จุด`);
+          return;
+        }
+      } catch {}
+    }
+    try { const d = await loadSeedFile(); applyData(d, `ข้อมูลชุดเริ่มต้น (${d.compiled}) · ${d.spots.length} จุด`); }
+    catch { dbState.textContent = "โหลดฐานข้อมูลไม่ได้ ลองรีเฟรชหน้า"; }
+  }
+  loadData();
 
   // Cloud sync: private per-player doc under data/users/<id>/
   (async () => {

@@ -1,0 +1,725 @@
+{
+ "version": 1,
+ "compiled": "2026-11-22",
+ "note": "Compiled from guide-site search results in launch week. No coordinates. Seed for the artifact database; also the page's offline fallback.",
+ "checklist": [
+  {
+   "id": "flamingo",
+   "name": "Cocaine Flamingos",
+   "total": 125,
+   "need": 100,
+   "desc": "ยิงนกฟลามิงโกปากขาวดำให้ห่อโคเคนหล่น ไม่ขึ้นบนแผนที่ ดูยอดได้ที่ Progress > Collections > Exploration",
+   "order": 1
+  },
+  {
+   "id": "cards",
+   "name": "Collectible Cards (ชุด)",
+   "total": 18,
+   "need": 15,
+   "desc": "480 ใบใน 18 ชุด นับเฉพาะชุดที่ครบ ตัวนับนี้นับเป็นจำนวนชุด",
+   "order": 2
+  },
+  {
+   "id": "waink",
+   "name": "WAiNK Scans",
+   "total": 0,
+   "need": 100,
+   "desc": "สแกนด้วยแอป WAiNK: Landmarks 31, Curiosities 35, Sculptures 23 และแท็ก No Flusher รวมกันให้ได้ 100",
+   "order": 3
+  },
+  {
+   "id": "underwater",
+   "name": "Underwater Discoveries",
+   "total": 33,
+   "need": 33,
+   "desc": "หมวดเดียวที่ต้องเก็บครบทุกชิ้น",
+   "order": 4
+  },
+  {
+   "id": "mags",
+   "name": "Magazines, Books & Comics",
+   "total": 34,
+   "need": 30,
+   "desc": "หนังสือ 27 เล่ม และหนังสือแลกเปลี่ยน 7 เล่ม",
+   "order": 5
+  },
+  {
+   "id": "meditate",
+   "name": "Meditation Spots",
+   "total": 18,
+   "need": 15,
+   "desc": "จุดนั่งสมาธิ",
+   "order": 6
+  },
+  {
+   "id": "kenton",
+   "name": "Kenton Treasure Sets",
+   "total": 7,
+   "need": 5,
+   "desc": "ดำน้ำหาสมบัติกับ Kenton ได้เงินสดด้วย",
+   "order": 7
+  },
+  {
+   "id": "styles",
+   "name": "Discovered Styles",
+   "total": 79,
+   "need": 70,
+   "desc": "สไตล์การแต่งตัว",
+   "order": 8
+  },
+  {
+   "id": "playlists",
+   "name": "Unique Playlists",
+   "total": 2,
+   "need": 2,
+   "desc": "เพลย์ลิสต์พิเศษ",
+   "order": 9
+  },
+  {
+   "id": "vehicles",
+   "name": "รถรุ่นพื้นฐาน",
+   "total": 277,
+   "need": 200,
+   "desc": "ค้นพบรถ",
+   "order": 10
+  },
+  {
+   "id": "weapons",
+   "name": "อาวุธมาตรฐาน",
+   "total": 66,
+   "need": 50,
+   "desc": "ค้นพบอาวุธ",
+   "order": 11
+  },
+  {
+   "id": "animals",
+   "name": "สัตว์",
+   "total": 255,
+   "need": 100,
+   "desc": "ค้นพบสัตว์",
+   "order": 12
+  },
+  {
+   "id": "stunts",
+   "name": "Stunts",
+   "total": 397,
+   "need": 300,
+   "desc": "ตัวเลขยังขัดกัน บางเว็บบอก 130 แก้ยอดเองได้",
+   "order": 13
+  },
+  {
+   "id": "meteor",
+   "name": "Meteorite Chunks",
+   "total": 36,
+   "need": 0,
+   "desc": "ไม่อยู่ในเงื่อนไข 100% GTABase นับ 36 อีกเว็บนับ 21 เรืองแสงตอนกลางคืน",
+   "order": 14
+  },
+  {
+   "id": "safes",
+   "name": "ตู้เซฟ",
+   "total": 59,
+   "need": 0,
+   "desc": "ไม่อยู่ในเงื่อนไข 100% GTABase นับ 59 ได้เงินสด",
+   "order": 15
+  }
+ ],
+ "spotGroups": [
+  {
+   "id": "flamingo",
+   "name": "Cocaine Flamingos",
+   "type": "flamingo",
+   "order": 1
+  },
+  {
+   "id": "card",
+   "name": "การ์ดสะสม",
+   "type": "cards",
+   "order": 2
+  },
+  {
+   "id": "meteor",
+   "name": "Meteorite Chunks",
+   "type": "meteor",
+   "order": 3
+  },
+  {
+   "id": "landmark",
+   "name": "WAiNK Landmarks",
+   "type": "waink",
+   "order": 4
+  },
+  {
+   "id": "curio",
+   "name": "WAiNK Curiosities",
+   "type": "waink",
+   "order": 5
+  },
+  {
+   "id": "safe",
+   "name": "ตู้เซฟ & รหัส",
+   "type": "safes",
+   "order": 6
+  },
+  {
+   "id": "special",
+   "name": "ของลับ/อีสเตอร์เอ้ก",
+   "type": "special",
+   "order": 7
+  },
+  {
+   "id": "side",
+   "name": "ภารกิจเสริม",
+   "type": "mission",
+   "order": 8
+  }
+ ],
+ "spots": [
+  {
+   "id": "fl1",
+   "g": "flamingo",
+   "name": "กลุ่มฟลามิงโก 6 ตัว Belpoint",
+   "area": "Belpoint, Mariana County",
+   "where": "ฝั่งตะวันออกเฉียงใต้: แถวท่าเรือ บ้านที่ถูกเผา ตู้คอนเทนเนอร์บนชายหาด และตู้สีเหลืองในน้ำ ไปรอบเดียวเก็บได้หลายตัว",
+   "src": "PowerPyx / Magic Game World",
+   "order": 1
+  },
+  {
+   "id": "fl2",
+   "g": "flamingo",
+   "name": "ฟลามิงโก โมเทล Watson Bay",
+   "area": "Watson Bay",
+   "where": "มุมตะวันตกเฉียงใต้ของโมเทลฝั่งตะวันออก ข้างถังขยะ",
+   "src": "Magic Game World",
+   "order": 2
+  },
+  {
+   "id": "fl3",
+   "g": "flamingo",
+   "name": "ฟลามิงโก La Perle",
+   "area": "La Perle, Vice City",
+   "where": "ชั้นล่าง กลางอาคารรูปตัว C ทางตะวันตกเฉียงเหนือของอพาร์ตเมนต์ Tyrone",
+   "src": "Magic Game World",
+   "order": 3
+  },
+  {
+   "id": "fl4",
+   "g": "flamingo",
+   "name": "ฟลามิงโก บ้านแปลก Key Lento",
+   "area": "Key Lento, Leonida Keys",
+   "where": "ในสวนของบ้านประหลาดกลางเกาะ Key Lento",
+   "src": "Magic Game World",
+   "order": 4
+  },
+  {
+   "id": "fl5",
+   "g": "flamingo",
+   "name": "ฟลามิงโก ปลายเกาะเหนือ Featherstone",
+   "area": "Featherstone Islands",
+   "where": "จุดเหนือสุดของเกาะทางเหนือ",
+   "src": "Magic Game World",
+   "order": 5
+  },
+  {
+   "id": "fl6",
+   "g": "flamingo",
+   "name": "ฟลามิงโก 3 ตัว ซากเรือ Meerwunder",
+   "area": "Featherstone Islands",
+   "where": "บนชายหาดใกล้ซากเรือสินค้าคว่ำ Wreck of the Meerwunder",
+   "src": "The Big Lead / Vice City DB",
+   "order": 6
+  },
+  {
+   "id": "cd1",
+   "g": "card",
+   "name": "Taylor Blanc",
+   "area": "Key Lento, Leonida Keys",
+   "where": "ในกล่องสีเหลืองหลัง Brian's Lockup",
+   "src": "GTABase",
+   "order": 7
+  },
+  {
+   "id": "cd2",
+   "g": "card",
+   "name": "Drake (Gold)",
+   "area": "Ambrosia",
+   "where": "ในอาคารที่เหมืองทอง",
+   "src": "GTABase / The Big Lead",
+   "order": 8
+  },
+  {
+   "id": "cd3",
+   "g": "card",
+   "name": "Remy Herbert (Silver) · Liberty City Penetrators",
+   "area": "ไม่ระบุ",
+   "where": "ห้องที่เข้าได้ ชั้น 2 ของอาคารทางตะวันออกของร้านจำนำ Fast Cash",
+   "src": "PowerPyx / Game8",
+   "order": 9
+  },
+  {
+   "id": "cd4",
+   "g": "card",
+   "name": "Nikkander Orlov (Silver) · Los Santos Panic",
+   "area": "Watson Bay",
+   "where": "บนชั้นวางในที่มีหลังคาข้างบ้าน ขอบตะวันออกของ Watson Bay",
+   "src": "PowerPyx / Game8",
+   "order": 10
+  },
+  {
+   "id": "cd5",
+   "g": "card",
+   "name": "Maximus Goldbart (Yellow) · Los Santos Pounders",
+   "area": "Waning Sands",
+   "where": "ในโรงรถของวิลล่าทางตะวันออกของ Pay 'n' Spray",
+   "src": "PowerPyx / Game8",
+   "order": 11
+  },
+  {
+   "id": "cd6",
+   "g": "card",
+   "name": "Anthony Herndon (Bronze) · Vice City Flamingos",
+   "area": "Frogwater, Ambrosia",
+   "where": "บนโต๊ะในโรงรถข้าง Ambrosia Farmhouse",
+   "src": "PowerPyx / Game8",
+   "order": 12
+  },
+  {
+   "id": "cd7",
+   "g": "card",
+   "name": "Monali$a (Silver)",
+   "area": "Featherstone Islands",
+   "where": "ใกล้ซากเรือ Wreck of the Meerwunder",
+   "src": "Vice City DB",
+   "order": 13
+  },
+  {
+   "id": "mt1",
+   "g": "meteor",
+   "name": "อุกกาบาต 5 ชิ้น Selkie Hole",
+   "area": "Kelly County",
+   "where": "ในอุโมงค์ใต้น้ำของ Selkie Hole ลงบันไดที่จุดดำน้ำฝั่งตะวันตกของ Emerald Springs",
+   "src": "VG Times / Vice City DB",
+   "order": 14
+  },
+  {
+   "id": "mt2",
+   "g": "meteor",
+   "name": "อุกกาบาต ใต้ท่าเรือ Sandbars",
+   "area": "Sandbars",
+   "where": "ใต้ท่าเรือบนเกาะใหญ่ที่สุดทางเหนือสุด",
+   "src": "The Big Lead",
+   "order": 15
+  },
+  {
+   "id": "mt3",
+   "g": "meteor",
+   "name": "อุกกาบาต ใต้ประภาคาร Leonida Bay",
+   "area": "Leonida Bay",
+   "where": "ใต้ประภาคารบนเกาะเล็ก",
+   "src": "The Big Lead",
+   "order": 16
+  },
+  {
+   "id": "mt4",
+   "g": "meteor",
+   "name": "อุกกาบาต ซากเรือ Meerwunder",
+   "area": "Featherstone Islands",
+   "where": "ใกล้ซากเรือสินค้าคว่ำ",
+   "src": "Vice City DB",
+   "order": 17
+  },
+  {
+   "id": "mt5",
+   "g": "meteor",
+   "name": "จุดตกอุกกาบาต Mount Kalaga",
+   "area": "Mount Kalaga, Lummox County",
+   "where": "แคมป์ที่พังบนภูเขา (เกี่ยวกับเนื้อเรื่อง ไม่ใช่ชิ้นสะสมปกติ)",
+   "src": "หลายเว็บ",
+   "warn": "แต่ละเว็บบอกตำแหน่งต่างกัน: ฝั่งตะวันออกของภูเขา หรือ Hillside Campsite ตะวันตกเฉียงใต้ของ Dawson Dam",
+   "order": 18
+  },
+  {
+   "id": "lm1",
+   "g": "landmark",
+   "name": "Belpoint Lighthouse (#17)",
+   "area": "Belpoint",
+   "where": "ประภาคาร Belpoint",
+   "src": "GTA Corner",
+   "order": 19
+  },
+  {
+   "id": "lm2",
+   "g": "landmark",
+   "name": "รูปปั้น Visitor Center",
+   "area": "Grassrivers",
+   "where": "ศูนย์บริการนักท่องเที่ยว",
+   "src": "Pro-Gamer",
+   "warn": "บางเว็บจัดเป็น Sculpture",
+   "order": 20
+  },
+  {
+   "id": "lm3",
+   "g": "landmark",
+   "name": "Badger R&D Tower",
+   "area": "Key Lento",
+   "where": "หอคอย Badger R&D",
+   "src": "Pro-Gamer",
+   "order": 21
+  },
+  {
+   "id": "lm4",
+   "g": "landmark",
+   "name": "Wonder Whale",
+   "area": "Key Lento",
+   "where": "รูปวาฬยักษ์",
+   "src": "Pro-Gamer",
+   "order": 22
+  },
+  {
+   "id": "lm5",
+   "g": "landmark",
+   "name": "Radome",
+   "area": "Riquezas Keys",
+   "where": "โดมเรดาร์",
+   "src": "Pro-Gamer",
+   "order": 23
+  },
+  {
+   "id": "lm6",
+   "g": "landmark",
+   "name": "Halloween House",
+   "area": "Capri",
+   "where": "ทางใต้ของ Tortoise Lake",
+   "src": "Game-Checklists",
+   "order": 24
+  },
+  {
+   "id": "lm7",
+   "g": "landmark",
+   "name": "Gellhorn Fun Fair",
+   "area": "Port Gellhorn",
+   "where": "สวนสนุก",
+   "src": "Pro-Gamer",
+   "order": 25
+  },
+  {
+   "id": "lm8",
+   "g": "landmark",
+   "name": "Hoffman Observatory",
+   "area": "Port Gellhorn",
+   "where": "หอดูดาว",
+   "src": "Pro-Gamer",
+   "order": 26
+  },
+  {
+   "id": "lm9",
+   "g": "landmark",
+   "name": "Sahara Arena",
+   "area": "Vice City",
+   "where": "สนามกีฬา",
+   "src": "Pro-Gamer",
+   "order": 27
+  },
+  {
+   "id": "lm10",
+   "g": "landmark",
+   "name": "Dock Ring Ferris Wheel",
+   "area": "Vice City",
+   "where": "ชิงช้าสวรรค์",
+   "src": "Pro-Gamer",
+   "order": 28
+  },
+  {
+   "id": "cu1",
+   "g": "curio",
+   "name": "Christmas House",
+   "area": "Key Lento",
+   "where": "ถนน Sunset Dr",
+   "src": "GameSpot / Push Square",
+   "order": 29
+  },
+  {
+   "id": "cu2",
+   "g": "curio",
+   "name": "Plunge Masters Deep Sea Chalet",
+   "area": "Key Lento",
+   "where": "ถัดไปตามถนน Sunset Dr",
+   "src": "GameSpot / Push Square",
+   "order": 30
+  },
+  {
+   "id": "cu3",
+   "g": "curio",
+   "name": "Abismo Key Carcass",
+   "area": "Abismo Key, Leonida Keys",
+   "where": "ริมทางหลวงฝั่งใต้-ตะวันตกเฉียงใต้",
+   "src": "GameSpot / Push Square",
+   "order": 31
+  },
+  {
+   "id": "cu4",
+   "g": "curio",
+   "name": "Derelict Spy Vessel",
+   "area": "Permit Keys",
+   "where": "บนชายหาดทางตะวันออกเฉียงใต้ ข้างในมีปืนพกพิเศษด้วย",
+   "src": "GameSpot / Push Square",
+   "order": 32
+  },
+  {
+   "id": "cu5",
+   "g": "curio",
+   "name": "Beach Party Site",
+   "area": "Permit Keys",
+   "where": "ตอนกลางของ Permit Keys ตรวจดูจะเจอ Fingerpost",
+   "src": "GameSpot / Push Square",
+   "order": 33
+  },
+  {
+   "id": "cu6",
+   "g": "curio",
+   "name": "Goose Key Carcass",
+   "area": "Goose Key",
+   "where": "ใกล้ Mile Zero Air Station (เขตทหาร ระวังโดนยิง)",
+   "src": "GameSpot / Push Square",
+   "order": 34
+  },
+  {
+   "id": "cu7",
+   "g": "curio",
+   "name": "Desert Island Piano",
+   "area": "Grassrivers",
+   "where": "เกาะเล็กทางใต้ของ Cottonmouth Lake",
+   "src": "GameSpot / Push Square",
+   "order": 35
+  },
+  {
+   "id": "cu8",
+   "g": "curio",
+   "name": "Dead Sharks",
+   "area": "Grassrivers",
+   "where": "เกาะใหญ่ทางตะวันตกของ Cottonmouth Lake",
+   "src": "GameSpot / Push Square",
+   "order": 36
+  },
+  {
+   "id": "cu9",
+   "g": "curio",
+   "name": "NoFlusher Homestead",
+   "area": "Grassrivers",
+   "where": "เกาะรูปร่างแปลกทางตะวันตกของ Pelican Valley",
+   "src": "GameSpot / Push Square",
+   "order": 37
+  },
+  {
+   "id": "cu10",
+   "g": "curio",
+   "name": "Vibrant Pond",
+   "area": "Longneck Trl",
+   "where": "หาป้ายเตือนห้ามว่ายน้ำบนถนน Longneck Trl",
+   "src": "GameSpot / Push Square",
+   "order": 38
+  },
+  {
+   "id": "cu11",
+   "g": "curio",
+   "name": "Pet Cemetery (#35)",
+   "area": "Grayson",
+   "where": "ริมถนน SR-73 ทางใต้ของ Grayson",
+   "src": "GameSpot / Push Square",
+   "order": 39
+  },
+  {
+   "id": "sf1",
+   "g": "safe",
+   "name": "Kingpin Bowling · รหัส 0300",
+   "area": "Kingpin Bowling",
+   "where": "ตู้เซฟในออฟฟิศ (ภารกิจ Chapter 2)",
+   "src": "หลายเว็บ",
+   "warn": "GamesRadar บอก 0330",
+   "order": 40
+  },
+  {
+   "id": "sf2",
+   "g": "safe",
+   "name": "Brooks Boatworks · รหัส 6823",
+   "area": "Brooks Boatworks",
+   "where": "รหัสอยู่บนแผนที่ติดผนังในอาคารเล็กสุดของคอมเพลกซ์",
+   "src": "หลายเว็บ",
+   "order": 41
+  },
+  {
+   "id": "sf3",
+   "g": "safe",
+   "name": "รถพ่วงใกล้ Cottonmouth Lake · รหัส 44017",
+   "area": "Grassrivers",
+   "where": "ตัวเลขซ่อนในโปสการ์ดบนผนังรถพ่วง",
+   "src": "หลายเว็บ",
+   "order": 42
+  },
+  {
+   "id": "sf4",
+   "g": "safe",
+   "name": "Janjak's Garage · รหัส 4444",
+   "area": "La Perle, Vice City",
+   "where": "โน้ตอยู่บนตู้เย็น ตู้เซฟอยู่ห้องติดกัน",
+   "src": "หลายเว็บ",
+   "order": 43
+  },
+  {
+   "id": "sf5",
+   "g": "safe",
+   "name": "La Cascara Motel · รหัส 6969",
+   "area": "La Cascara Motel",
+   "where": "ตู้เซฟในโมเทล",
+   "src": "หลายเว็บ",
+   "order": 44
+  },
+  {
+   "id": "sf6",
+   "g": "safe",
+   "name": "ฐานวิจัย Pelican Valley · รหัส 0072",
+   "area": "Pelican Valley",
+   "where": "ดูรหัสได้จากคอมพิวเตอร์ในฐาน",
+   "src": "หลายเว็บ",
+   "order": 45
+  },
+  {
+   "id": "sf7",
+   "g": "safe",
+   "name": "ประตู Brian's Lockup · รหัส 7700",
+   "area": "Key Lento",
+   "where": "เอากระเป๋าของโจรมาฝากได้ จ่ายเงินทีหลังแต่ได้น้อยกว่ามูลค่านิดหน่อย",
+   "src": "หลายเว็บ",
+   "order": 46
+  },
+  {
+   "id": "sf8",
+   "g": "safe",
+   "name": "Ocean Beach Liquor Store · ~$1,000",
+   "area": "Ocean Beach, Vice City",
+   "where": "งัดเข้าหลังร้าน ตู้เซฟในออฟฟิศ",
+   "src": "Outputlag",
+   "order": 47
+  },
+  {
+   "id": "sf9",
+   "g": "safe",
+   "name": "ปั๊ม Southwind · ~$458",
+   "area": "Watson Bay",
+   "where": "ตู้เซฟเล็ก ปิดสัญญาณกันขโมยได้",
+   "src": "Outputlag",
+   "order": 48
+  },
+  {
+   "id": "sf10",
+   "g": "safe",
+   "name": "Drip Drops · รหัส 4124",
+   "area": "ไม่ระบุ",
+   "where": "มี 2 ตู้ ราว $1,668 และ $2,286 ตู้ที่สองอยู่ฝั่งตรงข้ามถนน",
+   "src": "Outputlag",
+   "order": 49
+  },
+  {
+   "id": "sp1",
+   "g": "special",
+   "name": "รถสีเขียวในโรงรถวิลล่า",
+   "area": "Vespucci Island",
+   "where": "เข้าโรงรถวิลล่า ขึ้นรถแล้วต่อสายสตาร์ท",
+   "src": "Insider Gaming / TheClick",
+   "warn": "เว็บบอกรุ่นไม่ตรงกัน: Maibatsu Penumbra FF หรือรถคารวะ Paul Walker",
+   "order": 50
+  },
+  {
+   "id": "sp2",
+   "g": "special",
+   "name": "อพาร์ตเมนต์ Dexter + เรือ",
+   "area": "Washington Island",
+   "where": "อพาร์ตเมนต์ และเรือ Lure Predator L35P จอดที่ท่าใกล้ๆ",
+   "src": "Insider Gaming",
+   "order": 51
+  },
+  {
+   "id": "sp3",
+   "g": "special",
+   "name": "UFO",
+   "area": "ใกล้ Starlet Motel",
+   "where": "ทางตะวันตกเฉียงเหนือของโมเทล รถจอดข้างทางที่มีไฟกะพริบ บางครั้งโผล่หลังตี 2",
+   "src": "หลายเว็บ",
+   "order": 52
+  },
+  {
+   "id": "sp4",
+   "g": "special",
+   "name": "Skunk Ape",
+   "area": "Grassrivers",
+   "where": "ในหนองน้ำทางใต้ของ Cottonmouth Lake",
+   "src": "หลายเว็บ",
+   "order": 53
+  },
+  {
+   "id": "sp5",
+   "g": "special",
+   "name": "รังนกบนหอคอยสูงสุด",
+   "area": "ไม่แน่นอน",
+   "where": "ปีนบันไดถึงยอด มีไข่ในรัง ขว้างไข่แรงๆ จะมีคัตซีนลับ",
+   "src": "หลายเว็บ",
+   "warn": "ตำแหน่งขัดกัน: Vice City หรือ South Vice Dale County",
+   "order": 54
+  },
+  {
+   "id": "sp6",
+   "g": "special",
+   "name": "ปืน Crabshack VF5 SMG",
+   "area": "Pelican Valley",
+   "where": "รางวัลจากฐานวิจัยปู ได้เงินและเจ็ตสกีด้วย",
+   "src": "หลายเว็บ",
+   "order": 55
+  },
+  {
+   "id": "sp7",
+   "g": "special",
+   "name": "ปืนสไนเปอร์",
+   "area": "Watson Bay",
+   "where": "ในคอมพาวด์ เก็บได้ชั่วคราว รีบใส่ท้ายรถทันที",
+   "src": "หลายเว็บ",
+   "order": 56
+  },
+  {
+   "id": "sp8",
+   "g": "special",
+   "name": "ปืนล่าสัตว์",
+   "area": "Wet Man Bay",
+   "where": "เกาะเล็กที่มีท่าเรือกับบ้าน",
+   "src": "หลายเว็บ",
+   "order": 57
+  },
+  {
+   "id": "sd1",
+   "g": "side",
+   "name": "Find the Lost Drugs (9 ห่อ)",
+   "area": "4 พื้นที่",
+   "where": "Recreation Area 2 ห่อ (ห่อหนึ่งติดบนต้นไม้ริมหาด มีคนถือปืน 3 คน), Burned Houses 3, Pelican Valley 2, Thorpe Adventures 2",
+   "src": "MetaForge",
+   "order": 58
+  },
+  {
+   "id": "sd2",
+   "g": "side",
+   "name": "Hit Kingpin Bowling (Chapter 2)",
+   "area": "Kingpin Bowling",
+   "where": "ภารกิจเสริม หยิบของ 3 ชิ้นระหว่างภารกิจ ตู้เซฟทิ้งไว้แล้วระเบิดเปิดทีหลังได้",
+   "src": "Game-Checklists",
+   "order": 59
+  },
+  {
+   "id": "sd3",
+   "g": "side",
+   "name": "นิตยสารในบ้าน Jason (Chapter 1)",
+   "area": "บ้าน Jason",
+   "where": "บนโต๊ะข้างเตียง บางเว็บว่าเข้าไม่ได้อีกหลังจบ Chapter 1",
+   "src": "PowerPyx",
+   "warn": "บางเว็บบอกว่าไม่มีของที่พลาดแล้วพลาดเลย",
+   "order": 60
+  }
+ ]
+}
